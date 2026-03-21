@@ -8,411 +8,143 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif}
-    button{cursor:pointer;font-family:inherit}
-    button:active{transform:scale(.97)}
-
+    *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif}button{cursor:pointer;font-family:inherit}button:active{transform:scale(.97)}
     #login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a1628,#1a2d4a,#0d1f3c)}
     .lc{text-align:center;padding:60px 50px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;backdrop-filter:blur(20px);max-width:440px;width:90%}
     .ll{width:72px;height:72px;margin:0 auto 24px;background:linear-gradient(135deg,#c89250,#d4a060);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;box-shadow:0 8px 32px rgba(200,146,80,.3)}
-    .lc h1{color:#fff;font-size:26px;font-weight:700;margin-bottom:8px}
-    .lc .s1{color:rgba(255,255,255,.45);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-    .lc .s2{color:rgba(255,255,255,.35);font-size:14px;margin-bottom:40px}
-    .lc .s3{color:rgba(255,255,255,.25);font-size:12px;margin-top:32px}
-    .gb{display:inline-flex;align-items:center;gap:12px;padding:14px 32px;background:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;color:#1a2d4a;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .2s}
-    .gb:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
-
+    .lc h1{color:#fff;font-size:26px;font-weight:700;margin-bottom:8px}.lc .s1{color:rgba(255,255,255,.45);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}.lc .s2{color:rgba(255,255,255,.35);font-size:14px;margin-bottom:40px}.lc .s3{color:rgba(255,255,255,.25);font-size:12px;margin-top:32px}
+    .gb{display:inline-flex;align-items:center;gap:12px;padding:14px 32px;background:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;color:#1a2d4a;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .2s}.gb:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
     #app{display:none;min-height:100vh;background:#f5f6f8}
     .hd{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:#fff;border-bottom:1px solid #e8eaed;box-shadow:0 1px 3px rgba(0,0,0,.04);flex-wrap:wrap;gap:8px}
-    .hl{display:flex;align-items:center;gap:12px}
-    .hlg{width:36px;height:36px;background:linear-gradient(135deg,#1a2d4a,#2a4a6a);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}
-    .ht{font-size:17px;font-weight:700;color:#1a2535}
-    .hs{font-size:12px;color:#8a8e92;margin-left:8px}
-    .hr{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-    .ui{display:flex;align-items:center;gap:8px}
-    .ui img{width:32px;height:32px;border-radius:50%}
-    .ui span{font-size:13px;color:#555}
+    .hl{display:flex;align-items:center;gap:12px}.hlg{width:36px;height:36px;background:linear-gradient(135deg,#1a2d4a,#2a4a6a);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}.ht{font-size:17px;font-weight:700;color:#1a2535}.hs{font-size:12px;color:#8a8e92;margin-left:8px}
+    .hr{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.ui{display:flex;align-items:center;gap:8px}.ui img{width:32px;height:32px;border-radius:50%}.ui span{font-size:13px;color:#555}
     .bo{padding:6px 12px;background:0 0;border:1px solid #ddd;border-radius:6px;font-size:12px;color:#888}
-    .ba{padding:8px 14px;border-radius:8px;font-size:13px;border:1px solid}
-    .ba.y{background:#e8f5e9;border-color:#a5d6a7;color:#2e7d32}
-    .ba.n{background:#fff3e0;border-color:#ffcc80;color:#e65100}
-
-    .ap{display:none;padding:16px 32px;background:#fffde7;border-bottom:1px solid #fff9c4;align-items:center;gap:12px;flex-wrap:wrap}
-    .ap.v{display:flex}
-    .ap label{font-size:13px;color:#666;white-space:nowrap}
-    .ap input{flex:1;min-width:200px;max-width:400px;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:monospace}
-    .ap .h{font-size:11px;color:#999}
-
+    .ba{padding:8px 14px;border-radius:8px;font-size:13px;border:1px solid}.ba.y{background:#e8f5e9;border-color:#a5d6a7;color:#2e7d32}.ba.n{background:#fff3e0;border-color:#ffcc80;color:#e65100}
+    .ap{display:none;padding:16px 32px;background:#fffde7;border-bottom:1px solid #fff9c4;align-items:center;gap:12px;flex-wrap:wrap}.ap.v{display:flex}.ap label{font-size:13px;color:#666;white-space:nowrap}.ap input{flex:1;min-width:200px;max-width:400px;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:monospace}.ap .h{font-size:11px;color:#999}
+    .cb{display:flex;gap:16px;padding:12px 32px;background:#f0f4f8;border-bottom:1px solid #e2e6ea;font-size:13px;color:#555;align-items:center;flex-wrap:wrap}
+    .ci{display:flex;align-items:center;gap:6px}.ci .l{color:#888}.ci .v{font-weight:700;color:#1a2535}.ci .v.w{color:#e65100}
+    .cdv{width:1px;height:20px;background:#d0d4d8}.cr{padding:4px 10px;background:0 0;border:1px solid #ccc;border-radius:6px;font-size:11px;color:#888;margin-left:auto}
     .mn{max-width:960px;margin:40px auto;padding:0 24px}
-    .dz{padding:60px 40px;border:2px dashed #ccc;border-radius:16px;background:#fff;text-align:center;cursor:pointer;transition:all .2s}
-    .dz.ov{border-color:#c89250;background:rgba(200,146,80,.04)}
-    .dz.ok{border-color:#a5d6a7;background:#f8fdf8}
-    .dz .ic{font-size:48px;margin-bottom:12px}
-    .dz .lb{font-size:18px;font-weight:600;color:#555;margin-bottom:8px}
-    .dz.ok .lb{color:#1a2535}
-    .dz .sb{font-size:13px;color:#aaa}
-
-    .bp{padding:14px 48px;background:linear-gradient(135deg,#1a2d4a,#2a4a6a);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;box-shadow:0 4px 16px rgba(26,45,74,.3);transition:all .2s}
-    .bp:hover{transform:translateY(-2px)}
-    .bd{padding:10px 20px;background:#c89250;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600}
-    .bs{padding:8px 16px;background:#1a2d4a;color:#fff;border:none;border-radius:8px;font-size:13px}
-    .bg{padding:10px 24px;background:0 0;border:1px solid #ccc;border-radius:10px;font-size:14px;color:#666}
-
-    .pg{margin-top:24px;padding:24px;background:#fff;border-radius:12px;border:1px solid #e8eaed}
-    .pgh{display:flex;justify-content:space-between;margin-bottom:8px}
-    .pgh .st{font-size:14px;font-weight:600;color:#1a2535}
-    .pgh .ct{font-size:13px;color:#888}
-    .pt{height:6px;background:#e8eaed;border-radius:3px;overflow:hidden}
-    .pf{height:100%;border-radius:3px;background:linear-gradient(90deg,#1a2d4a,#c89250);transition:width .5s ease}
-
-    .rs{margin-top:32px}
-    .rsh{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-    .rsh h2{font-size:20px;font-weight:700;color:#1a2535}
-    .cd{padding:20px;background:#fff;border-radius:12px;border:1px solid #e8eaed;margin-bottom:16px}
-    .cd.er{border-color:#fecaca}
-    .cdh{display:flex;justify-content:space-between;align-items:center}
-    .cdh .t{font-size:15px;font-weight:600;color:#1a2535}
-    .cdh .t.e{color:#dc2626}
-    .pv{margin-top:16px;background:#f8f8f8;border-radius:8px;padding:8px;overflow:hidden}
-    .pv svg{width:100%;height:auto;display:block}
-
+    .dz{padding:60px 40px;border:2px dashed #ccc;border-radius:16px;background:#fff;text-align:center;cursor:pointer;transition:all .2s}.dz.ov{border-color:#c89250;background:rgba(200,146,80,.04)}.dz.ok{border-color:#a5d6a7;background:#f8fdf8}.dz .ic{font-size:48px;margin-bottom:12px}.dz .lb{font-size:18px;font-weight:600;color:#555;margin-bottom:8px}.dz.ok .lb{color:#1a2535}.dz .sb{font-size:13px;color:#aaa}
+    .bp{padding:14px 48px;background:linear-gradient(135deg,#1a2d4a,#2a4a6a);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;box-shadow:0 4px 16px rgba(26,45,74,.3);transition:all .2s}.bp:hover{transform:translateY(-2px)}
+    .bd{padding:10px 20px;background:#c89250;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600}.bs{padding:8px 16px;background:#1a2d4a;color:#fff;border:none;border-radius:8px;font-size:13px}.bg{padding:10px 24px;background:0 0;border:1px solid #ccc;border-radius:10px;font-size:14px;color:#666}
+    .pg{margin-top:24px;padding:24px;background:#fff;border-radius:12px;border:1px solid #e8eaed}.pgh{display:flex;justify-content:space-between;margin-bottom:8px}.pgh .st{font-size:14px;font-weight:600;color:#1a2535}.pgh .ct{font-size:13px;color:#888}.pt{height:6px;background:#e8eaed;border-radius:3px;overflow:hidden}.pf{height:100%;border-radius:3px;background:linear-gradient(90deg,#1a2d4a,#c89250);transition:width .5s ease}
+    .rs{margin-top:32px}.rsh{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.rsh h2{font-size:20px;font-weight:700;color:#1a2535}
+    .cd{padding:20px;background:#fff;border-radius:12px;border:1px solid #e8eaed;margin-bottom:16px}.cd.er{border-color:#fecaca}.cdh{display:flex;justify-content:space-between;align-items:center}.cdh .t{font-size:15px;font-weight:600;color:#1a2535}.cdh .t.e{color:#dc2626}
+    .pv{margin-top:16px;background:#f8f8f8;border-radius:8px;padding:8px;overflow:hidden}.pv svg{width:100%;height:auto;display:block}
     .em{margin-top:16px;padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;font-size:14px;color:#dc2626;display:none}
-    .ct{text-align:center}
-    .m24{margin-top:24px}
-    .ft{text-align:center;padding:24px;color:#aaa;font-size:12px}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-    .pu{animation:pulse 1.5s infinite}
+    .ctr{text-align:center}.m24{margin-top:24px}.ft{text-align:center;padding:24px;color:#aaa;font-size:12px}
+    .cb2{display:inline-block;padding:3px 8px;background:#f0f4f8;border-radius:6px;font-size:11px;color:#666;margin-left:8px}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}.pu{animation:pulse 1.5s infinite}
   </style>
 </head>
 <body>
-
-<div id="login">
-  <div class="lc">
-    <div class="ll">⚓</div>
-    <h1>Slide Converter</h1>
-    <p class="s1">autonomousship.org</p>
-    <p class="s2">PDF → 편집 가능한 SVG</p>
-    <button class="gb" onclick="doLogin()">
-      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-      Google로 로그인
-    </button>
-    <p class="s3">허용된 계정만 접근 가능합니다</p>
-  </div>
-</div>
+<div id="login"><div class="lc"><div class="ll">⚓</div><h1>Slide Converter</h1><p class="s1">autonomousship.org</p><p class="s2">PDF → 편집 가능한 SVG</p><button class="gb" onclick="doLogin()"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google로 로그인</button><p class="s3">허용된 계정만 접근 가능합니다</p></div></div>
 
 <div id="app">
-  <header class="hd">
-    <div class="hl">
-      <div class="hlg">⚓</div>
-      <div><span class="ht">Slide Converter</span><span class="hs">PDF → SVG</span></div>
-    </div>
-    <div class="hr">
-      <button id="abtn" class="ba n" onclick="togApi()">⚠ API 키 필요</button>
-      <div class="ui">
-        <img id="up" src="" alt="">
-        <span id="un"></span>
-        <button class="bo" onclick="doOut()">로그아웃</button>
-      </div>
-    </div>
-  </header>
+  <header class="hd"><div class="hl"><div class="hlg">⚓</div><div><span class="ht">Slide Converter</span><span class="hs">PDF → SVG</span></div></div><div class="hr"><button id="abtn" class="ba n" onclick="togApi()">⚠ API 키 필요</button><div class="ui"><img id="up" src="" alt=""><span id="un"></span><button class="bo" onclick="doOut()">로그아웃</button></div></div></header>
 
-  <div id="apn" class="ap">
-    <label>Claude API Key:</label>
-    <input id="aki" type="password" placeholder="sk-ant-...">
-    <button class="bs" onclick="saveKey()">저장</button>
-    <span class="h">키는 이 브라우저에만 저장됩니다</span>
+  <div class="cb">
+    <div class="ci"><span class="l">이번 변환:</span><span class="v" id="cC">$0.000</span></div><div class="cdv"></div>
+    <div class="ci"><span class="l">오늘:</span><span class="v" id="cD">$0.000</span></div><div class="cdv"></div>
+    <div class="ci"><span class="l">전체 누적:</span><span class="v" id="cA">$0.000</span></div><div class="cdv"></div>
+    <div class="ci"><span class="l">총 슬라이드:</span><span class="v" id="cS">0장</span></div>
+    <button class="cr" onclick="rstC()">초기화</button>
   </div>
+
+  <div id="apn" class="ap"><label>Claude API Key:</label><input id="aki" type="password" placeholder="sk-ant-..."><button class="bs" onclick="saveKey()">저장</button><span class="h">키는 이 브라우저에만 저장됩니다</span></div>
 
   <main class="mn">
     <div id="dz" class="dz" onclick="$('fi').click()" ondragover="event.preventDefault();this.classList.add('ov')" ondragleave="this.classList.remove('ov')" ondrop="hDrop(event)">
       <input id="fi" type="file" accept=".pdf" style="display:none" onchange="hFile(this)">
-      <div class="ic" id="dic">📁</div>
-      <p class="lb" id="dlb">PDF 파일을 드래그하거나 클릭하여 선택</p>
-      <p class="sb" id="dsb">프레젠테이션 PDF를 편집 가능한 SVG로 변환합니다</p>
+      <div class="ic" id="dic">📁</div><p class="lb" id="dlb">PDF 파일을 드래그하거나 클릭하여 선택</p><p class="sb" id="dsb">프레젠테이션 PDF를 편집 가능한 SVG로 변환합니다</p>
     </div>
-
     <div id="em" class="em"></div>
-
-    <div id="sconv" class="ct m24" style="display:none">
-      <button class="bp" onclick="go()">변환 시작</button>
-      <p style="font-size:12px;color:#aaa;margin-top:8px">슬라이드당 약 $0.03~0.05의 API 비용이 발생합니다</p>
-    </div>
-
-    <div id="spg" class="pg" style="display:none">
-      <div class="pgh"><span class="st" id="pst">준비 중...</span><span class="ct" id="pct"></span></div>
-      <div class="pt"><div class="pf" id="pfl" style="width:0%"></div></div>
-    </div>
-
-    <div id="srs" class="rs" style="display:none">
-      <div class="rsh"><h2>변환 결과</h2><button class="bd" onclick="dlA()">전체 다운로드</button></div>
-      <div id="rl"></div>
-      <div class="ct m24"><button class="bg" onclick="rst()">새 파일 변환</button></div>
-    </div>
+    <div id="sconv" class="ctr m24" style="display:none"><button class="bp" onclick="go()">변환 시작</button><p style="font-size:12px;color:#aaa;margin-top:8px">슬라이드당 약 $0.03~0.10 API 비용</p></div>
+    <div id="spg" class="pg" style="display:none"><div class="pgh"><span class="st" id="pst">준비 중...</span><span class="ct" id="pct"></span></div><div class="pt"><div class="pf" id="pfl" style="width:0%"></div></div></div>
+    <div id="srs" class="rs" style="display:none"><div class="rsh"><h2 id="rsh2">변환 결과</h2><button class="bd" onclick="dlA()">전체 다운로드</button></div><div id="rl"></div><div class="ctr m24"><button class="bg" onclick="rst()">새 파일 변환</button></div></div>
   </main>
   <footer class="ft">Autonomous Ship Group · Slide Converter · Powered by Claude AI</footer>
 </div>
 
 <script>
 const $=id=>document.getElementById(id);
-
-// ═══ Firebase ═══
-firebase.initializeApp({
-  apiKey:"AIzaSyBuGoE5qGFuuXH99nNy4Y4f3waY2ZS4Nbk",
-  authDomain:"maritime-live-feed.firebaseapp.com",
-  projectId:"maritime-live-feed",
-  storageBucket:"maritime-live-feed.firebasestorage.app",
-  messagingSenderId:"599051690662",
-  appId:"1:599051690662:web:233e351eb8bd571dc10a67"
-});
-const auth=firebase.auth(), prov=new firebase.auth.GoogleAuthProvider();
-const OK_EMAILS=["kjwooshi@gmail.com","chmsj19@gmail.com","csyeop1202@gmail.com"];
-
+firebase.initializeApp({apiKey:"AIzaSyBuGoE5qGFuuXH99nNy4Y4f3waY2ZS4Nbk",authDomain:"maritime-live-feed.firebaseapp.com",projectId:"maritime-live-feed",storageBucket:"maritime-live-feed.firebasestorage.app",messagingSenderId:"599051690662",appId:"1:599051690662:web:233e351eb8bd571dc10a67"});
+const auth=firebase.auth(),prov=new firebase.auth.GoogleAuthProvider();
+const OK=["kjwooshi@gmail.com","chmsj19@gmail.com","csyeop1202@gmail.com"];
 pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+let cFile=null,res=[];
 
-let cFile=null, res=[];
+// ═══ Cost ═══
+const PI=3/1e6,PO=15/1e6; let sC=0;
+function ldC(){return JSON.parse(localStorage.getItem("cost")||'{"t":0,"s":0,"d":{}}')}
+function svC(d){localStorage.setItem("cost",JSON.stringify(d))}
+function addC(i,o){const c=i*PI+o*PO;sC+=c;const d=ldC();d.t+=c;d.s++;const td=new Date().toISOString().slice(0,10);d.d[td]=(d.d[td]||0)+c;svC(d);uC();return c}
+function uC(){const d=ldC(),td=new Date().toISOString().slice(0,10),dc=d.d[td]||0;$("cC").textContent="$"+sC.toFixed(3);$("cD").textContent="$"+dc.toFixed(3);$("cA").textContent="$"+d.t.toFixed(3);$("cA").className=d.t>1?"v w":"v";$("cS").textContent=d.s+"장"}
+function rstC(){if(!confirm("전체 누적 비용을 초기화할까요?"))return;localStorage.setItem("cost",'{"t":0,"s":0,"d":{}}');sC=0;uC()}
 
 // ═══ Auth ═══
-auth.onAuthStateChanged(u=>{
-  if(u&&OK_EMAILS.includes(u.email)){
-    $("login").style.display="none";
-    $("app").style.display="block";
-    $("un").textContent=u.displayName;
-    $("up").src=u.photoURL;
-    $("aki").value=localStorage.getItem("ak")||"";
-    updABtn();
-  } else if(u){
-    alert("접근 권한이 없는 계정입니다.\n("+u.email+")");
-    auth.signOut();
-  } else {
-    $("login").style.display="flex";
-    $("app").style.display="none";
-  }
-});
-function doLogin(){auth.signInWithPopup(prov)}
-function doOut(){auth.signOut()}
+auth.onAuthStateChanged(u=>{if(u&&OK.includes(u.email)){$("login").style.display="none";$("app").style.display="block";$("un").textContent=u.displayName;$("up").src=u.photoURL;$("aki").value=localStorage.getItem("ak")||"";updA();uC()}else if(u){alert("접근 권한이 없는 계정입니다.\n("+u.email+")");auth.signOut()}else{$("login").style.display="flex";$("app").style.display="none"}});
+function doLogin(){auth.signInWithPopup(prov)}function doOut(){auth.signOut()}
 
 // ═══ API Key ═══
 function togApi(){$("apn").classList.toggle("v")}
-function saveKey(){localStorage.setItem("ak",$("aki").value.trim());updABtn();$("apn").classList.remove("v")}
-function updABtn(){
-  const k=localStorage.getItem("ak");
-  const b=$("abtn");
-  if(k){b.className="ba y";b.textContent="✓ API 키 설정됨"}
-  else{b.className="ba n";b.textContent="⚠ API 키 필요"}
-}
-function getKey(){return localStorage.getItem("ak")||""}
+function saveKey(){localStorage.setItem("ak",$("aki").value.trim());updA();$("apn").classList.remove("v")}
+function updA(){const k=localStorage.getItem("ak"),b=$("abtn");if(k){b.className="ba y";b.textContent="✓ API 키 설정됨"}else{b.className="ba n";b.textContent="⚠ API 키 필요"}}
+function gk(){return localStorage.getItem("ak")||""}
 
 // ═══ File ═══
 function hDrop(e){e.preventDefault();e.currentTarget.classList.remove("ov");if(e.dataTransfer.files[0])pick(e.dataTransfer.files[0])}
 function hFile(i){if(i.files[0])pick(i.files[0])}
-function pick(f){
-  if(!f.name.toLowerCase().endsWith(".pdf")){sErr("PDF 파일만 가능합니다.");return}
-  cFile=f;res=[];hErr();
-  $("srs").style.display="none";
-  $("dz").classList.add("ok");
-  $("dic").textContent="📄";
-  $("dlb").textContent=f.name;
-  $("dsb").textContent=(f.size/1024/1024).toFixed(1)+" MB · 클릭하여 다른 파일 선택";
-  $("sconv").style.display="block";
-}
+function pick(f){if(!f.name.toLowerCase().endsWith(".pdf")){sE("PDF 파일만 가능합니다.");return}cFile=f;res=[];hE();$("srs").style.display="none";$("dz").classList.add("ok");$("dic").textContent="📄";$("dlb").textContent=f.name;$("dsb").textContent=(f.size/1048576).toFixed(1)+" MB · 클릭하여 다른 파일 선택";$("sconv").style.display="block"}
 
 // ═══ Convert ═══
 async function go(){
-  if(!cFile)return;
-  const ak=getKey();
-  if(!ak){togApi();sErr("Claude API 키를 먼저 입력해주세요.");return}
-  $("sconv").style.display="none";
-  $("spg").style.display="block";
-  hErr();
+  if(!cFile)return;const ak=gk();if(!ak){togApi();sE("Claude API 키를 먼저 입력해주세요.");return}
+  $("sconv").style.display="none";$("spg").style.display="block";hE();sC=0;uC();
   try{
-    sP("PDF 페이지 변환 중...",0,0);
-    const pgs=await pdf2img(cFile);
-    res=[];
-    for(let i=0;i<pgs.length;i++){
-      sP("슬라이드 "+(i+1)+"/"+pgs.length+" 변환 중...",i+1,pgs.length);
-      try{
-        const svg=await toSvg(pgs[i],ak);
-        res.push({n:i+1,svg,e:null});
-      }catch(e){res.push({n:i+1,svg:null,e:e.message})}
-    }
-    sP("변환 완료!",pgs.length,pgs.length);
-    setTimeout(()=>{$("spg").style.display="none";showRes()},600);
-  }catch(e){
-    $("spg").style.display="none";
-    $("sconv").style.display="block";
-    sErr(e.message);
-  }
+    sP("PDF 페이지 변환 중...",0,0);const pgs=await p2i(cFile);res=[];
+    for(let i=0;i<pgs.length;i++){sP("슬라이드 "+(i+1)+"/"+pgs.length+" 변환 중...",i+1,pgs.length);
+      try{const r=await toS(pgs[i],ak);res.push({n:i+1,svg:r.svg,e:null,cost:r.cost})}catch(e){res.push({n:i+1,svg:null,e:e.message,cost:0})}}
+    sP("변환 완료!",pgs.length,pgs.length);setTimeout(()=>{$("spg").style.display="none";showR()},600);
+  }catch(e){$("spg").style.display="none";$("sconv").style.display="block";sE(e.message)}
 }
 
-async function pdf2img(file){
-  const buf=await file.arrayBuffer();
-  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
-  const pgs=[];
-  for(let i=1;i<=pdf.numPages;i++){
-    const pg=await pdf.getPage(i);
-    const vp=pg.getViewport({scale:2});
-    const c=document.createElement("canvas");
-    c.width=vp.width;c.height=vp.height;
-    const ctx=c.getContext("2d");
-    await pg.render({canvasContext:ctx,viewport:vp}).promise;
-    pgs.push({n:i,b64:c.toDataURL("image/png").split(",")[1],canvas:c,w:vp.width,h:vp.height});
-  }
-  return pgs;
-}
+async function p2i(file){const buf=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:buf}).promise,pgs=[];
+  for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i),vp=pg.getViewport({scale:2}),c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;pgs.push({n:i,b64:c.toDataURL("image/png").split(",")[1],cv:c})}return pgs}
 
-// 이미지 영역 crop → base64
-function cropRegion(canvas,x,y,w,h,srcW,srcH){
-  // 비율 변환 (1280x720 → canvas 실제 크기)
-  const sx=canvas.width/srcW, sy=canvas.height/srcH;
-  const c2=document.createElement("canvas");
-  const cw=Math.round(w*sx), ch=Math.round(h*sy);
-  c2.width=cw; c2.height=ch;
-  c2.getContext("2d").drawImage(canvas, Math.round(x*sx),Math.round(y*sy),cw,ch, 0,0,cw,ch);
-  return c2.toDataURL("image/png").split(",")[1];
-}
+function crop(cv,x,y,w,h){const sx=cv.width/1280,sy=cv.height/720,c2=document.createElement("canvas"),cw=Math.round(w*sx),ch=Math.round(h*sy);c2.width=cw;c2.height=ch;c2.getContext("2d").drawImage(cv,Math.round(x*sx),Math.round(y*sy),cw,ch,0,0,cw,ch);return c2.toDataURL("image/png").split(",")[1]}
 
-async function toSvg(pg,ak){
-  // ── Pass 1: 사진 영역 좌표 추출 ──
-  const r1=await fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST",
-    headers:{"Content-Type":"application/json","x-api-key":ak,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-    body:JSON.stringify({
-      model:"claude-sonnet-4-20250514",
-      max_tokens:2000,
-      messages:[{role:"user",content:[
-        {type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},
-        {type:"text",text:`이 슬라이드에서 사진/스크린샷/실사 이미지 영역의 좌표를 찾아주세요.
-viewBox 기준 1280x720으로 환산하여 각 이미지의 x, y, width, height를 JSON 배열로만 출력하세요.
-아이콘, 도형, 텍스트는 제외하고 사진/스크린샷만 포함하세요.
-사진이 없으면 빈 배열 []을 출력하세요.
+async function api(ak,msgs,mt){const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":ak,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:mt,messages:msgs})});
+  if(!r.ok){const t=await r.text();throw new Error("API ("+r.status+"): "+t.substring(0,200))}const d=await r.json(),u=d.usage||{},c=addC(u.input_tokens||0,u.output_tokens||0);return{text:d.content?.[0]?.text||"",cost:c}}
 
-JSON만 출력. 설명 없이. 예시: [{"x":100,"y":300,"w":250,"h":180},{"x":500,"y":300,"w":250,"h":180}]`}
-      ]}]
-    })
-  });
-
-  let photos=[];
-  if(r1.ok){
-    const d1=await r1.json();
-    const t1=d1.content?.[0]?.text||"";
-    try{
-      const m=t1.match(/\[[\s\S]*\]/);
-      if(m) photos=JSON.parse(m[0]);
-    }catch(e){}
-  }
-
-  // ── 사진 영역 crop해서 base64 생성 ──
-  const photoData=photos.map((p,i)=>{
-    try{
-      const b64=cropRegion(pg.canvas, p.x, p.y, p.w, p.h, 1280, 720);
-      return {id:"photo_"+i, x:p.x, y:p.y, w:p.w, h:p.h, b64:b64};
-    }catch(e){return null}
-  }).filter(Boolean);
-
-  // ── 사진 참조 텍스트 생성 ──
-  let photoInstructions="";
-  if(photoData.length>0){
-    photoInstructions=`
-
-이 슬라이드에는 ${photoData.length}개의 사진이 있습니다. 각 사진 위치에 아래 <image> 태그를 정확히 그대로 사용하세요:
-${photoData.map(p=>`- (${p.x},${p.y}) ${p.w}x${p.h} 위치: <image href="data:image/png;base64,PHOTO_${p.id}" x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" />`).join("\n")}
-
-중요: href 값을 "data:image/png;base64,PHOTO_photo_0" 이런 식으로 정확히 플레이스홀더 그대로 넣으세요. 제가 나중에 실제 이미지로 교체합니다.`;
-  }
-
-  // ── Pass 2: SVG 생성 (사진 플레이스홀더 포함) ──
-  const r2=await fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST",
-    headers:{"Content-Type":"application/json","x-api-key":ak,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-    body:JSON.stringify({
-      model:"claude-sonnet-4-20250514",
-      max_tokens:16000,
-      messages:[{role:"user",content:[
-        {type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},
-        {type:"text",text:`이 프레젠테이션 슬라이드를 편집 가능한 SVG로 정확하게 재현해주세요.
-${photoInstructions}
-
-핵심 규칙:
-1. viewBox="0 0 1280 720" (16:9 비율, 정확히 이 크기)
-2. 모든 텍스트: font-family="Malgun Gothic, sans-serif"
-3. 텍스트 크기를 원본과 정확히 맞추세요:
-   - 메인 제목: 28~36px bold
-   - 부제/소제목: 18~24px bold
-   - 본문: 14~16px
-   - 캡션/주석: 10~12px
-   - Speaker Notes 영역: 10~11px
-4. 텍스트 위치: 원본의 x,y 좌표를 정확하게 재현
-5. 도형(사각형, 원, 라운드렉트 등)의 크기와 위치를 정확하게
-6. 아이콘은 단순화된 SVG path로 (형태가 비슷하면 OK)
-7. 색상을 원본과 동일하게 (배경, 텍스트, 도형, 테두리 전부)
-8. 그림자, 테두리 두께, 라운드 코너 등 디테일 포함
-9. 불릿 포인트는 원과 텍스트로 정확히 배치
-10. 레이아웃: 요소 간 간격과 정렬을 원본과 동일하게
-11. 하단 Speaker Notes/Presentation Script 영역도 포함
-12. 한국어/영어 텍스트 정확하게 (오타 없이)
-
-<svg 로 시작해서 </svg>로 끝나는 순수 SVG만 출력. 설명이나 \`\`\` 없이.`}
-      ]}]
-    })
-  });
-  if(!r2.ok){const t=await r2.text();throw new Error("API 오류 ("+r2.status+"): "+t.substring(0,200))}
-  const d2=await r2.json();
-  let svg=d2.content?.[0]?.text||"";
-  const mt=svg.match(/<svg[\s\S]*<\/svg>/);
-  if(mt)svg=mt[0];
-  if(!svg.includes("<svg"))throw new Error("SVG 생성 실패");
-
-  // ── 사진 플레이스홀더를 실제 base64로 교체 ──
-  photoData.forEach(p=>{
-    svg=svg.replace(new RegExp("PHOTO_"+p.id,"g"), p.b64);
-  });
-
-  return svg;
+async function toS(pg,ak){let tc=0;
+  // Pass 1: 사진 좌표
+  const r1=await api(ak,[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},{type:"text",text:"이 슬라이드에서 사진/스크린샷/실사 이미지 영역 좌표를 찾아주세요. viewBox 1280x720 기준. 아이콘/도형/텍스트 제외. JSON 배열만 출력. 예: [{\"x\":100,\"y\":300,\"w\":250,\"h\":180}] 사진 없으면 []"}]}],2000);
+  tc+=r1.cost;let ph=[];try{const m=r1.text.match(/\[[\s\S]*\]/);if(m)ph=JSON.parse(m[0])}catch(e){}
+  // Crop
+  const pd=ph.map((p,i)=>{try{return{id:"p"+i,x:p.x,y:p.y,w:p.w,h:p.h,b:crop(pg.cv,p.x,p.y,p.w,p.h)}}catch(e){return null}}).filter(Boolean);
+  let pi="";if(pd.length>0){pi="\n\n사진 "+pd.length+"개 발견. 각 위치에 이 태그를 정확히 사용:\n"+pd.map(p=>'<image href="data:image/png;base64,PH_'+p.id+'" x="'+p.x+'" y="'+p.y+'" width="'+p.w+'" height="'+p.h+'" />').join("\n")+"\nhref의 PH_p0 등 플레이스홀더를 그대로 유지하세요."}
+  // Pass 2: SVG
+  const r2=await api(ak,[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},{type:"text",text:"이 슬라이드를 편집 가능한 SVG로 정확하게 재현하세요."+pi+"\n\n규칙:\n1. viewBox=\"0 0 1280 720\"\n2. font-family=\"Malgun Gothic, sans-serif\"\n3. 텍스트 크기: 메인제목 28~36px bold, 소제목 18~24px bold, 본문 14~16px, 캡션 10~12px, Notes 10~11px\n4. 텍스트 위치를 원본과 정확히 맞추기\n5. 도형 크기/위치/색상 정확하게\n6. 아이콘은 단순 SVG path로\n7. 색상 원본과 동일\n8. 테두리, 그림자, 라운드코너 디테일\n9. 불릿=원+텍스트\n10. 레이아웃 간격/정렬 동일\n11. Speaker Notes 영역 포함\n12. 한국어/영어 정확 (오타없이)\n\n<svg로 시작 </svg>로 끝나는 순수 SVG만. 설명/``` 없이."}]}],16000);
+  tc+=r2.cost;let svg=r2.text;const mt=svg.match(/<svg[\s\S]*<\/svg>/);if(mt)svg=mt[0];if(!svg.includes("<svg"))throw new Error("SVG 생성 실패");
+  pd.forEach(p=>{svg=svg.replace(new RegExp("PH_"+p.id,"g"),p.b)});
+  return{svg,cost:tc};
 }
 
 // ═══ UI ═══
-function sP(st,c,t){
-  $("pst").textContent=st;
-  $("pct").textContent=t>0?c+"/"+t:"";
-  const p=t>0?(c/t*100):30;
-  const f=$("pfl");f.style.width=p+"%";
-  f.className=t===0?"pf pu":"pf";
-}
-function showRes(){
-  const el=$("rl");el.innerHTML="";
-  res.forEach((r,i)=>{
-    const d=document.createElement("div");
-    d.className="cd"+(r.e?" er":"");
-    let h='<div class="cdh"><span class="t'+(r.e?' e':'')+'">슬라이드 '+r.n+(r.e?' — '+r.e:'')+'</span>';
-    if(r.svg)h+='<button class="bs" onclick="dl1('+i+')">SVG 다운로드</button>';
-    h+='</div>';
-    if(r.svg)h+='<div class="pv">'+r.svg+'</div>';
-    d.innerHTML=h;el.appendChild(d);
-  });
-  const cnt=res.filter(r=>r.svg).length;
-  document.querySelector(".rsh .bd").textContent="전체 다운로드 ("+cnt+"개)";
-  $("srs").style.display="block";
-}
-function dl1(i){
-  const r=res[i];if(!r||!r.svg)return;
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob([r.svg],{type:"image/svg+xml"}));
-  a.download=cFile.name.replace(".pdf","")+"_slide"+r.n+".svg";
-  a.click();
-}
+function sP(s,c,t){$("pst").textContent=s;$("pct").textContent=t>0?c+"/"+t:"";$("pfl").style.width=(t>0?c/t*100:30)+"%";$("pfl").className=t===0?"pf pu":"pf"}
+function showR(){const el=$("rl");el.innerHTML="";let bc=0;
+  res.forEach((r,i)=>{bc+=r.cost||0;const d=document.createElement("div");d.className="cd"+(r.e?" er":"");
+    let h='<div class="cdh"><span class="t'+(r.e?' e':'')+'">슬라이드 '+r.n+(r.e?' — '+r.e:'')+(r.cost>0?'<span class="cb2">$'+r.cost.toFixed(3)+'</span>':'')+'</span>';
+    if(r.svg)h+='<button class="bs" onclick="dl1('+i+')">SVG 다운로드</button>';h+='</div>';
+    if(r.svg)h+='<div class="pv">'+r.svg+'</div>';d.innerHTML=h;el.appendChild(d)});
+  document.querySelector(".rsh .bd").textContent="전체 다운로드 ("+res.filter(r=>r.svg).length+"개)";
+  $("rsh2").textContent="변환 결과 — 이번 비용: $"+bc.toFixed(3);$("srs").style.display="block"}
+function dl1(i){const r=res[i];if(!r||!r.svg)return;const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([r.svg],{type:"image/svg+xml"}));a.download=cFile.name.replace(".pdf","")+"_slide"+r.n+".svg";a.click()}
 function dlA(){res.filter(r=>r.svg).forEach((r,i)=>setTimeout(()=>dl1(res.indexOf(r)),i*300))}
-function rst(){
-  cFile=null;res=[];
-  $("srs").style.display="none";$("sconv").style.display="none";
-  $("dz").classList.remove("ok");
-  $("dic").textContent="📁";
-  $("dlb").textContent="PDF 파일을 드래그하거나 클릭하여 선택";
-  $("dsb").textContent="프레젠테이션 PDF를 편집 가능한 SVG로 변환합니다";
-  $("fi").value="";
-}
-function sErr(m){const e=$("em");e.textContent=m;e.style.display="block"}
-function hErr(){$("em").style.display="none"}
+function rst(){cFile=null;res=[];sC=0;uC();$("srs").style.display="none";$("sconv").style.display="none";$("dz").classList.remove("ok");$("dic").textContent="📁";$("dlb").textContent="PDF 파일을 드래그하거나 클릭하여 선택";$("dsb").textContent="프레젠테이션 PDF를 편집 가능한 SVG로 변환합니다";$("fi").value=""}
+function sE(m){const e=$("em");e.textContent=m;e.style.display="block"}function hE(){$("em").style.display="none"}
 </script>
 </body>
 </html>
