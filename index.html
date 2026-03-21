@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide Converter — Autonomous Ship Group</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif}
+    button{cursor:pointer;font-family:inherit}
+    button:active{transform:scale(.97)}
+
+    #login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a1628,#1a2d4a,#0d1f3c)}
+    .lc{text-align:center;padding:60px 50px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;backdrop-filter:blur(20px);max-width:440px;width:90%}
+    .ll{width:72px;height:72px;margin:0 auto 24px;background:linear-gradient(135deg,#c89250,#d4a060);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;box-shadow:0 8px 32px rgba(200,146,80,.3)}
+    .lc h1{color:#fff;font-size:26px;font-weight:700;margin-bottom:8px}
+    .lc .s1{color:rgba(255,255,255,.45);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+    .lc .s2{color:rgba(255,255,255,.35);font-size:14px;margin-bottom:40px}
+    .lc .s3{color:rgba(255,255,255,.25);font-size:12px;margin-top:32px}
+    .gb{display:inline-flex;align-items:center;gap:12px;padding:14px 32px;background:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;color:#1a2d4a;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .2s}
+    .gb:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+
+    #app{display:none;min-height:100vh;background:#f5f6f8}
+    .hd{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:#fff;border-bottom:1px solid #e8eaed;box-shadow:0 1px 3px rgba(0,0,0,.04);flex-wrap:wrap;gap:8px}
+    .hl{display:flex;align-items:center;gap:12px}
+    .hlg{width:36px;height:36px;background:linear-gradient(135deg,#1a2d4a,#2a4a6a);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}
+    .ht{font-size:17px;font-weight:700;color:#1a2535}
+    .hs{font-size:12px;color:#8a8e92;margin-left:8px}
+    .hr{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .ui{display:flex;align-items:center;gap:8px}
+    .ui img{width:32px;height:32px;border-radius:50%}
+    .ui span{font-size:13px;color:#555}
+    .bo{padding:6px 12px;background:0 0;border:1px solid #ddd;border-radius:6px;font-size:12px;color:#888}
+    .ba{padding:8px 14px;border-radius:8px;font-size:13px;border:1px solid}
+    .ba.y{background:#e8f5e9;border-color:#a5d6a7;color:#2e7d32}
+    .ba.n{background:#fff3e0;border-color:#ffcc80;color:#e65100}
+
+    .ap{display:none;padding:16px 32px;background:#fffde7;border-bottom:1px solid #fff9c4;align-items:center;gap:12px;flex-wrap:wrap}
+    .ap.v{display:flex}
+    .ap label{font-size:13px;color:#666;white-space:nowrap}
+    .ap input{flex:1;min-width:200px;max-width:400px;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:monospace}
+    .ap .h{font-size:11px;color:#999}
+
+    .mn{max-width:960px;margin:40px auto;padding:0 24px}
+    .dz{padding:60px 40px;border:2px dashed #ccc;border-radius:16px;background:#fff;text-align:center;cursor:pointer;transition:all .2s}
+    .dz.ov{border-color:#c89250;background:rgba(200,146,80,.04)}
+    .dz.ok{border-color:#a5d6a7;background:#f8fdf8}
+    .dz .ic{font-size:48px;margin-bottom:12px}
+    .dz .lb{font-size:18px;font-weight:600;color:#555;margin-bottom:8px}
+    .dz.ok .lb{color:#1a2535}
+    .dz .sb{font-size:13px;color:#aaa}
+
+    .bp{padding:14px 48px;background:linear-gradient(135deg,#1a2d4a,#2a4a6a);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;box-shadow:0 4px 16px rgba(26,45,74,.3);transition:all .2s}
+    .bp:hover{transform:translateY(-2px)}
+    .bd{padding:10px 20px;background:#c89250;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600}
+    .bs{padding:8px 16px;background:#1a2d4a;color:#fff;border:none;border-radius:8px;font-size:13px}
+    .bg{padding:10px 24px;background:0 0;border:1px solid #ccc;border-radius:10px;font-size:14px;color:#666}
+
+    .pg{margin-top:24px;padding:24px;background:#fff;border-radius:12px;border:1px solid #e8eaed}
+    .pgh{display:flex;justify-content:space-between;margin-bottom:8px}
+    .pgh .st{font-size:14px;font-weight:600;color:#1a2535}
+    .pgh .ct{font-size:13px;color:#888}
+    .pt{height:6px;background:#e8eaed;border-radius:3px;overflow:hidden}
+    .pf{height:100%;border-radius:3px;background:linear-gradient(90deg,#1a2d4a,#c89250);transition:width .5s ease}
+
+    .rs{margin-top:32px}
+    .rsh{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .rsh h2{font-size:20px;font-weight:700;color:#1a2535}
+    .cd{padding:20px;background:#fff;border-radius:12px;border:1px solid #e8eaed;margin-bottom:16px}
+    .cd.er{border-color:#fecaca}
+    .cdh{display:flex;justify-content:space-between;align-items:center}
+    .cdh .t{font-size:15px;font-weight:600;color:#1a2535}
+    .cdh .t.e{color:#dc2626}
+    .pv{margin-top:16px;background:#f8f8f8;border-radius:8px;padding:8px;overflow:hidden}
+    .pv svg{width:100%;height:auto;display:block}
+
+    .em{margin-top:16px;padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;font-size:14px;color:#dc2626;display:none}
+    .ct{text-align:center}
+    .m24{margin-top:24px}
+    .ft{text-align:center;padding:24px;color:#aaa;font-size:12px}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+    .pu{animation:pulse 1.5s infinite}
+  </style>
+</head>
+<body>
+
+<div id="login">
+  <div class="lc">
+    <div class="ll">⚓</div>
+    <h1>Slide Converter</h1>
+    <p class="s1">autonomousship.org</p>
+    <p class="s2">PDF → 편집 가능한 SVG</p>
+    <button class="gb" onclick="doLogin()">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Google로 로그인
+    </button>
+    <p class="s3">허용된 계정만 접근 가능합니다</p>
+  </div>
+</div>
+
+<div id="app">
+  <header class="hd">
+    <div class="hl">
+      <div class="hlg">⚓</div>
+      <div><span class="ht">Slide Converter</span><span class="hs">PDF → SVG</span></div>
+    </div>
+    <div class="hr">
+      <button id="abtn" class="ba n" onclick="togApi()">⚠ API 키 필요</button>
+      <div class="ui">
+        <img id="up" src="" alt="">
+        <span id="un"></span>
+        <button class="bo" onclick="doOut()">로그아웃</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="apn" class="ap">
+    <label>Claude API Key:</label>
+    <input id="aki" type="password" placeholder="sk-ant-...">
+    <button class="bs" onclick="saveKey()">저장</button>
+    <span class="h">키는 이 브라우저에만 저장됩니다</span>
+  </div>
+
+  <main class="mn">
+    <div id="dz" class="dz" onclick="$('fi').click()" ondragover="event.preventDefault();this.classList.add('ov')" ondragleave="this.classList.remove('ov')" ondrop="hDrop(event)">
+      <input id="fi" type="file" accept=".pdf" style="display:none" onchange="hFile(this)">
+      <div class="ic" id="dic">📁</div>
+      <p class="lb" id="dlb">PDF 파일을 드래그하거나 클릭하여 선택</p>
+      <p class="sb" id="dsb">프레젠테이션 PDF를 편집 가능한 SVG로 변환합니다</p>
+    </div>
+
+    <div id="em" class="em"></div>
+
+    <div id="sconv" class="ct m24" style="display:none">
+      <button class="bp" onclick="go()">변환 시작</button>
+      <p style="font-size:12px;color:#aaa;margin-top:8px">슬라이드당 약 $0.03~0.05의 API 비용이 발생합니다</p>
+    </div>
+
+    <div id="spg" class="pg" style="display:none">
+      <div class="pgh"><span class="st" id="pst">준비 중...</span><span class="ct" id="pct"></span></div>
+      <div class="pt"><div class="pf" id="pfl" style="width:0%"></div></div>
+    </div>
+
+    <div id="srs" class="rs" style="display:none">
+      <div class="rsh"><h2>변환 결과</h2><button class="bd" onclick="dlA()">전체 다운로드</button></div>
+      <div id="rl"></div>
+      <div class="ct m24"><button class="bg" onclick="rst()">새 파일 변환</button></div>
+    </div>
+  </main>
+  <footer class="ft">Autonomous Ship Group · Slide Converter · Powered by Claude AI</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+// ═══ Firebase ═══
+firebase.initializeApp({
+  apiKey:"AIzaSyBuGoE5qGFuuXH99nNy4Y4f3waY2ZS4Nbk",
+  authDomain:"maritime-live-feed.firebaseapp.com",
+  projectId:"maritime-live-feed",
+  storageBucket:"maritime-live-feed.firebasestorage.app",
+  messagingSenderId:"599051690662",
+  appId:"1:599051690662:web:233e351eb8bd571dc10a67"
+});
+const auth=firebase.auth(), prov=new firebase.auth.GoogleAuthProvider();
+const OK_EMAILS=["kjwooshi@gmail.com","chmsj19@gmail.com","csyeop1202@gmail.com"];
+
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+let cFile=null, res=[];
+
+// ═══ Auth ═══
+auth.onAuthStateChanged(u=>{
+  if(u&&OK_EMAILS.includes(u.email)){
+    $("login").style.display="none";
+    $("app").style.display="block";
+    $("un").textContent=u.displayName;
+    $("up").src=u.photoURL;
+    $("aki").value=localStorage.getItem("ak")||"";
+    updABtn();
+  } else if(u){
+    alert("접근 권한이 없는 계정입니다.\n("+u.email+")");
+    auth.signOut();
+  } else {
+    $("login").style.display="flex";
+    $("app").style.display="none";
+  }
+});
+function doLogin(){auth.signInWithPopup(prov)}
+function doOut(){auth.signOut()}
+
+// ═══ API Key ═══
+function togApi(){$("apn").classList.toggle("v")}
+function saveKey(){localStorage.setItem("ak",$("aki").value.trim());updABtn();$("apn").classList.remove("v")}
+function updABtn(){
+  const k=localStorage.getItem("ak");
+  const b=$("abtn");
+  if(k){b.className="ba y";b.textContent="✓ API 키 설정됨"}
+  else{b.className="ba n";b.textContent="⚠ API 키 필요"}
+}
+function getKey(){return localStorage.getItem("ak")||""}
+
+// ═══ File ═══
+function hDrop(e){e.preventDefault();e.currentTarget.classList.remove("ov");if(e.dataTransfer.files[0])pick(e.dataTransfer.files[0])}
+function hFile(i){if(i.files[0])pick(i.files[0])}
+function pick(f){
+  if(!f.name.toLowerCase().endsWith(".pdf")){sErr("PDF 파일만 가능합니다.");return}
+  cFile=f;res=[];hErr();
+  $("srs").style.display="none";
+  $("dz").classList.add("ok");
+  $("dic").textContent="📄";
+  $("dlb").textContent=f.name;
+  $("dsb").textContent=(f.size/1024/1024).toFixed(1)+" MB · 클릭하여 다른 파일 선택";
+  $("sconv").style.display="block";
+}
+
+// ═══ Convert ═══
+async function go(){
+  if(!cFile)return;
+  const ak=getKey();
+  if(!ak){togApi();sErr("Claude API 키를 먼저 입력해주세요.");return}
+  $("sconv").style.display="none";
+  $("spg").style.display="block";
+  hErr();
+  try{
+    sP("PDF 페이지 변환 중...",0,0);
+    const pgs=await pdf2img(cFile);
+    res=[];
+    for(let i=0;i<pgs.length;i++){
+      sP("슬라이드 "+(i+1)+"/"+pgs.length+" 변환 중...",i+1,pgs.length);
+      try{
+        const svg=await toSvg(pgs[i],ak);
+        res.push({n:i+1,svg,e:null});
+      }catch(e){res.push({n:i+1,svg:null,e:e.message})}
+    }
+    sP("변환 완료!",pgs.length,pgs.length);
+    setTimeout(()=>{$("spg").style.display="none";showRes()},600);
+  }catch(e){
+    $("spg").style.display="none";
+    $("sconv").style.display="block";
+    sErr(e.message);
+  }
+}
+
+async function pdf2img(file){
+  const buf=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+  const pgs=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const pg=await pdf.getPage(i);
+    const vp=pg.getViewport({scale:2});
+    const c=document.createElement("canvas");
+    c.width=vp.width;c.height=vp.height;
+    await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
+    pgs.push({n:i,b64:c.toDataURL("image/png").split(",")[1]});
+  }
+  return pgs;
+}
+
+async function toSvg(pg,ak){
+  const r=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "x-api-key":ak,
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
+    body:JSON.stringify({
+      model:"claude-sonnet-4-20250514",
+      max_tokens:16000,
+      messages:[{role:"user",content:[
+        {type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},
+        {type:"text",text:`이 프레젠테이션 슬라이드를 편집 가능한 SVG로 정확하게 재현해주세요.
+
+규칙:
+1. viewBox="0 0 1280 720" (16:9)
+2. 모든 텍스트: font-family="Malgun Gothic, sans-serif"
+3. 도형은 rect, circle, ellipse, path 등 적절한 SVG 요소
+4. 아이콘은 단순화된 SVG path로 (형태 비슷하면 OK)
+5. 색상, 텍스트 크기, 위치, 볼드 여부 최대한 정확
+6. 배경색, 테두리, 그림자 디테일 포함
+7. 불릿은 circle 또는 기호
+8. 한국어/영어 정확하게
+
+<svg 로 시작해서 </svg>로 끝나는 순수 SVG만 출력. 설명이나 \`\`\` 없이.`}
+      ]}]
+    })
+  });
+  if(!r.ok){const t=await r.text();throw new Error("API 오류 ("+r.status+"): "+t.substring(0,200))}
+  const d=await r.json();
+  let s=d.content?.[0]?.text||"";
+  const m=s.match(/<svg[\s\S]*<\/svg>/);
+  if(m)s=m[0];
+  if(!s.includes("<svg"))throw new Error("SVG 생성 실패");
+  return s;
+}
+
+// ═══ UI ═══
+function sP(st,c,t){
+  $("pst").textContent=st;
+  $("pct").textContent=t>0?c+"/"+t:"";
+  const p=t>0?(c/t*100):30;
+  const f=$("pfl");f.style.width=p+"%";
+  f.className=t===0?"pf pu":"pf";
+}
+function showRes(){
+  const el=$("rl");el.innerHTML="";
+  res.forEach((r,i)=>{
+    const d=document.createElement("div");
+    d.className="cd"+(r.e?" er":"");
+    let h='<div class="cdh"><span class="t'+(r.e?' e':'')+'">슬라이드 '+r.n+(r.e?' — '+r.e:'')+'</span>';
+    if(r.svg)h+='<button class="bs" onclick="dl1('+i+')">SVG 다운로드</button>';
+    h+='</div>';
+    if(r.svg)h+='<div class="pv">'+r.svg+'</div>';
+    d.innerHTML=h;el.appendChild(d);
+  });
+  const cnt=res.filter(r=>r.svg).length;
+  document.querySelector(".rsh .bd").textContent="전체 다운로드 ("+cnt+"개)";
+  $("srs").style.display="block";
+}
+function dl1(i){
+  const r=res[i];if(!r||!r.svg)return;
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([r.svg],{type:"image/svg+xml"}));
+  a.download=cFile.name.replace(".pdf","")+"_slide"+r.n+".svg";
+  a.click();
+}
+function dlA(){res.filter(r=>r.svg).forEach((r,i)=>setTimeout(()=>dl1(res.indexOf(r)),i*300))}
+function rst(){
+  cFile=null;res=[];
+  $("srs").style.display="none";$("sconv").style.display="none";
+  $("dz").classList.remove("ok");
+  $("dic").textContent="📁";
+  $("dlb").textContent="PDF 파일을 드래그하거나 클릭하여 선택";
+  $("dsb").textContent="프레젠테이션 PDF를 편집 가능한 SVG로 변환합니다";
+  $("fi").value="";
+}
+function sErr(m){const e=$("em");e.textContent=m;e.style.display="block"}
+function hErr(){$("em").style.display="none"}
+</script>
+</body>
+</html>
