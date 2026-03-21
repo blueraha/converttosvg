@@ -61,7 +61,7 @@
     </div>
     <div id="em" class="em"></div>
     <div id="sconv" class="ctr m24" style="display:none"><button class="bp" onclick="go()">변환 시작</button><p style="font-size:12px;color:#aaa;margin-top:8px">슬라이드당 약 $0.03~0.10 API 비용</p></div>
-    <div id="spg" class="pg" style="display:none"><div class="pgh"><span class="st" id="pst">준비 중...</span><span class="ct" id="pct"></span></div><div class="pt"><div class="pf" id="pfl" style="width:0%"></div></div></div>
+    <div id="spg" class="pg" style="display:none"><div class="pgh"><span class="st" id="pst">준비 중...</span><span class="ct" id="pct"></span></div><div class="pt"><div class="pf" id="pfl" style="width:0%"></div></div><div class="ctr" style="margin-top:12px"><button onclick="stopConvert()" style="padding:8px 24px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600">⏹ 변환 중지</button></div></div>
     <div id="srs" class="rs" style="display:none"><div class="rsh"><h2 id="rsh2">변환 결과</h2><button class="bd" onclick="dlA()">전체 다운로드</button></div><div id="rl"></div><div class="ctr m24"><button class="bg" onclick="rst()">새 파일 변환</button></div></div>
   </main>
   <footer class="ft">Autonomous Ship Group · Slide Converter · Powered by Claude AI</footer>
@@ -99,14 +99,19 @@ function hFile(i){if(i.files[0])pick(i.files[0])}
 function pick(f){if(!f.name.toLowerCase().endsWith(".pdf")){sE("PDF 파일만 가능합니다.");return}cFile=f;res=[];hE();$("srs").style.display="none";$("dz").classList.add("ok");$("dic").textContent="📄";$("dlb").textContent=f.name;$("dsb").textContent=(f.size/1048576).toFixed(1)+" MB · 클릭하여 다른 파일 선택";$("sconv").style.display="block"}
 
 // ═══ Convert ═══
+let stopped=false;
+function stopConvert(){stopped=true;sP("중지됨",0,1);$("pfl").style.background="#dc2626"}
 async function go(){
   if(!cFile)return;const ak=gk();if(!ak){togApi();sE("Claude API 키를 먼저 입력해주세요.");return}
-  $("sconv").style.display="none";$("spg").style.display="block";hE();sC=0;uC();
+  stopped=false;$("sconv").style.display="none";$("spg").style.display="block";$("pfl").style.background="linear-gradient(90deg,#1a2d4a,#c89250)";hE();sC=0;uC();
   try{
     sP("PDF 페이지 변환 중...",0,0);const pgs=await p2i(cFile);res=[];
-    for(let i=0;i<pgs.length;i++){sP("슬라이드 "+(i+1)+"/"+pgs.length+" 변환 중...",i+1,pgs.length);
+    for(let i=0;i<pgs.length;i++){
+      if(stopped){sP("중지됨 — "+res.filter(r=>r.svg).length+"개 완료",i,pgs.length);break}
+      sP("슬라이드 "+(i+1)+"/"+pgs.length+" 변환 중...",i+1,pgs.length);
       try{const r=await toS(pgs[i],ak);res.push({n:i+1,svg:r.svg,e:null,cost:r.cost})}catch(e){res.push({n:i+1,svg:null,e:e.message,cost:0})}}
-    sP("변환 완료!",pgs.length,pgs.length);setTimeout(()=>{$("spg").style.display="none";showR()},600);
+    if(!stopped)sP("변환 완료!",pgs.length,pgs.length);
+    setTimeout(()=>{$("spg").style.display="none";if(res.length>0)showR();else{$("sconv").style.display="block"}},600);
   }catch(e){$("spg").style.display="none";$("sconv").style.display="block";sE(e.message)}
 }
 
