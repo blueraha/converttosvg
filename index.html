@@ -120,13 +120,84 @@ async function api(ak,msgs,mt){const r=await fetch("https://api.anthropic.com/v1
 
 async function toS(pg,ak){let tc=0;
   // Pass 1: 사진 좌표
-  const r1=await api(ak,[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},{type:"text",text:"이 슬라이드에서 사진/스크린샷/실사 이미지 영역 좌표를 찾아주세요. viewBox 1280x720 기준. 아이콘/도형/텍스트 제외. JSON 배열만 출력. 예: [{\"x\":100,\"y\":300,\"w\":250,\"h\":180}] 사진 없으면 []"}]}],2000);
+  const r1=await api(ak,[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},{type:"text",text:`이 슬라이드를 분석해주세요. viewBox 1280x720 기준으로:
+
+1. 사진/스크린샷/실사 이미지 영역의 좌표 (아이콘, 차트, 도형, 텍스트 제외)
+2. 각 영역의 x, y, w(width), h(height)
+
+JSON 배열만 출력. 사진 없으면 [].
+예: [{"x":65,"y":210,"w":230,"h":160}]`}]}],2000);
   tc+=r1.cost;let ph=[];try{const m=r1.text.match(/\[[\s\S]*\]/);if(m)ph=JSON.parse(m[0])}catch(e){}
   // Crop
   const pd=ph.map((p,i)=>{try{return{id:"p"+i,x:p.x,y:p.y,w:p.w,h:p.h,b:crop(pg.cv,p.x,p.y,p.w,p.h)}}catch(e){return null}}).filter(Boolean);
-  let pi="";if(pd.length>0){pi="\n\n사진 "+pd.length+"개 발견. 각 위치에 이 태그를 정확히 사용:\n"+pd.map(p=>'<image href="data:image/png;base64,PH_'+p.id+'" x="'+p.x+'" y="'+p.y+'" width="'+p.w+'" height="'+p.h+'" />').join("\n")+"\nhref의 PH_p0 등 플레이스홀더를 그대로 유지하세요."}
-  // Pass 2: SVG
-  const r2=await api(ak,[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},{type:"text",text:"이 슬라이드를 편집 가능한 SVG로 정확하게 재현하세요."+pi+"\n\n규칙:\n1. viewBox=\"0 0 1280 720\"\n2. font-family=\"Malgun Gothic, sans-serif\"\n3. 텍스트 크기: 메인제목 28~36px bold, 소제목 18~24px bold, 본문 14~16px, 캡션 10~12px, Notes 10~11px\n4. 텍스트 위치를 원본과 정확히 맞추기\n5. 도형 크기/위치/색상 정확하게\n6. 아이콘은 단순 SVG path로\n7. 색상 원본과 동일\n8. 테두리, 그림자, 라운드코너 디테일\n9. 불릿=원+텍스트\n10. 레이아웃 간격/정렬 동일\n11. Speaker Notes 영역 포함\n12. 한국어/영어 정확 (오타없이)\n\n<svg로 시작 </svg>로 끝나는 순수 SVG만. 설명/``` 없이."}]}],16000);
+  
+  // 사진 지시문 생성
+  let pi="";
+  if(pd.length>0){
+    pi=`
+
+⚠️ 중요 - 사진 처리 규칙:
+이 슬라이드에 사진/스크린샷이 ${pd.length}개 있습니다.
+각 사진 위치에 아래 <image> 태그를 복사해서 그대로 넣으세요:
+
+${pd.map(p=>`<image href="data:image/png;base64,PH_${p.id}" x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" preserveAspectRatio="xMidYMid meet" />`).join("\n")}
+
+절대 금지:
+- 사진 영역을 rect, path, 색상블록 등으로 다시 그리지 마세요
+- 사진 위에 텍스트를 겹쳐 쓰지 마세요
+- PH_p0, PH_p1 등 플레이스홀더 문자열을 수정하지 마세요
+사진은 제가 자동 교체합니다. <image> 태그만 정확히 배치하세요.`;
+  }
+
+  // Pass 2: SVG 생성
+  const r2=await api(ak,[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},{type:"text",text:`이 프레젠테이션 슬라이드를 편집 가능한 SVG로 재현하세요.
+${pi}
+
+필수 규칙:
+1. viewBox="0 0 1280 720" 고정
+2. 폰트 규칙:
+   - 영어 텍스트: font-family="Calibri, sans-serif"
+   - 한국어가 포함된 텍스트: font-family="Malgun Gothic, Calibri, sans-serif"
+   - 한 텍스트 안에 영어와 한글이 섞여 있으면 "Malgun Gothic, Calibri, sans-serif" 사용
+3. 각 요소는 한 번만 그리세요. 절대 중복 금지!
+4. 텍스트가 겹치면 안 됩니다 - 각 텍스트 블록의 y좌표를 충분히 간격을 두세요
+
+텍스트 크기 가이드:
+- 슬라이드 메인 제목: 30~36px, font-weight="bold"
+- 섹션 제목/소제목: 20~24px, font-weight="bold"  
+- 본문 텍스트: 14~16px
+- 불릿 포인트 텍스트: 14~15px
+- 캡션/라벨: 11~13px
+- Speaker Notes/하단 스크립트: 10~11px
+
+레이아웃 규칙:
+- 배경색을 먼저 깔고, 그 위에 도형, 그 위에 텍스트 순서로 레이어링
+- 각 요소의 x, y 좌표를 원본 위치와 최대한 동일하게
+- 두 칼럼 레이아웃이면 왼쪽(x: 40~600)과 오른쪽(x: 640~1240)을 명확히 분리
+- 텍스트 줄 간격: 본문은 y를 20~22px씩, 제목은 35~40px씩 증가
+
+도형/아이콘:
+- 사각형, 원, 라운드렉트 등 정확한 크기와 색상
+- 아이콘은 간단한 SVG path로 근사 (완벽하지 않아도 됨)
+- 차트/그래프는 rect, line, circle 등으로 단순 재현
+
+색상: 원본의 정확한 색상 사용 (배경, 텍스트, 도형, 테두리 전부)
+
+하단 Speaker Notes 영역:
+- 슬라이드 본문과 명확히 구분되는 배경색 (#dcdfe2 등)
+- 본문보다 작은 폰트 (10~11px)
+
+⚠️ 크기 주의:
+- 콘텐츠가 viewBox 1280x720 전체를 꽉 채워야 합니다
+- 원본과 동일한 여백. 콘텐츠를 축소하거나 가운데로 모으지 마세요
+- 원본에서 x=40부터 시작하면 SVG에서도 x=40
+
+⚠️ 텍스트 줄바꿈 주의:
+- 원본에서 한 줄인 텍스트는 반드시 <text> 하나로 한 줄에 작성
+- 임의로 <tspan>으로 줄 나누지 마세요
+- 원본에서 실제 2줄 이상인 경우만 <tspan> 사용
+
+출력: <svg로 시작 </svg>로 끝. 설명/\`\`\` 없이 SVG만.`}]}],16000);
   tc+=r2.cost;let svg=r2.text;const mt=svg.match(/<svg[\s\S]*<\/svg>/);if(mt)svg=mt[0];if(!svg.includes("<svg"))throw new Error("SVG 생성 실패");
   pd.forEach(p=>{svg=svg.replace(new RegExp("PH_"+p.id,"g"),p.b)});
   return{svg,cost:tc};
