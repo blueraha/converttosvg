@@ -6,6 +6,7 @@
   <title>Slide Converter — Autonomous Ship Group</title>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif}button{cursor:pointer;font-family:inherit}button:active{transform:scale(.97)}
@@ -39,6 +40,62 @@
     .flist div{padding:2px 0;display:flex;justify-content:space-between}
     .flist .fn{color:#1a2535}.flist .fs{color:#aaa}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}.pu{animation:pulse 1.5s infinite}
+
+    /* ═══ Tab Navigation ═══ */
+    .tabs{display:flex;gap:0;padding:0 32px;background:#fff;border-bottom:1px solid #e8eaed}
+    .tab{padding:14px 24px;font-size:14px;font-weight:600;color:#888;border:none;background:none;border-bottom:3px solid transparent;transition:all .2s}
+    .tab:hover{color:#1a2535}.tab.ac{color:#1a2d4a;border-bottom-color:#c89250}
+    .tab .tb{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;background:#e8eaed;border-radius:10px;font-size:11px;font-weight:700;color:#888;margin-left:6px}
+    .tab.ac .tb{background:#c89250;color:#fff}
+
+    /* ═══ History Panel ═══ */
+    #historyPanel{display:none;max-width:960px;margin:40px auto;padding:0 24px}
+    .hist-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+    .hist-controls h2{font-size:20px;font-weight:700;color:#1a2535}
+    .hist-search{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .hist-search input{padding:8px 14px;border:1px solid #ddd;border-radius:8px;font-size:13px;width:220px}
+    .hist-search select{padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;background:#fff}
+    .hist-group{margin-bottom:28px}
+    .hist-date{font-size:13px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e8eaed}
+    .hist-card{display:flex;align-items:center;gap:16px;padding:16px;background:#fff;border:1px solid #e8eaed;border-radius:12px;margin-bottom:10px;transition:all .15s;cursor:pointer}
+    .hist-card:hover{border-color:#c89250;box-shadow:0 2px 12px rgba(200,146,80,.12)}
+    .hist-thumb{width:120px;height:68px;border-radius:6px;background:#f0f4f8;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .hist-thumb svg{width:100%;height:100%;display:block}
+    .hist-thumb .no-thumb{font-size:24px;color:#ccc}
+    .hist-info{flex:1;min-width:0}
+    .hist-name{font-size:14px;font-weight:600;color:#1a2535;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .hist-meta{font-size:12px;color:#888;margin-top:4px;display:flex;gap:12px;flex-wrap:wrap}
+    .hist-meta span{display:inline-flex;align-items:center;gap:3px}
+    .hist-actions{display:flex;gap:8px;flex-shrink:0}
+    .hist-btn{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid #ddd;background:#fff;color:#555;transition:all .15s}
+    .hist-btn:hover{border-color:#1a2d4a;color:#1a2d4a}
+    .hist-btn.primary{background:#1a2d4a;color:#fff;border-color:#1a2d4a}
+    .hist-btn.primary:hover{background:#2a4a6a}
+    .hist-btn.danger{color:#dc2626;border-color:#fecaca}
+    .hist-btn.danger:hover{background:#fef2f2}
+    .hist-empty{text-align:center;padding:60px 20px;color:#aaa}
+    .hist-empty .icon{font-size:48px;margin-bottom:12px}
+    .hist-empty p{font-size:14px}
+    .hist-loading{text-align:center;padding:40px;color:#888;font-size:14px}
+
+    /* ═══ Preview Modal ═══ */
+    .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)}
+    .modal-overlay.show{display:flex}
+    .modal{background:#fff;border-radius:16px;max-width:900px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.3)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #e8eaed}
+    .modal-header h3{font-size:16px;font-weight:700;color:#1a2535;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;margin-right:16px}
+    .modal-header-actions{display:flex;gap:8px;flex-shrink:0}
+    .modal-close{width:32px;height:32px;border-radius:8px;border:1px solid #ddd;background:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;color:#888}
+    .modal-close:hover{background:#f5f5f5}
+    .modal-body{flex:1;overflow:auto;padding:24px;background:#f8f8f8}
+    .modal-body svg{width:100%;height:auto;display:block;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .modal-footer{padding:12px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#888}
+
+    /* ═══ Storage save indicator ═══ */
+    .save-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600}
+    .save-badge.saving{background:#fff3e0;color:#e65100}
+    .save-badge.saved{background:#e8f5e9;color:#2e7d32}
+    .save-badge.failed{background:#fef2f2;color:#dc2626}
   </style>
 </head>
 <body>
@@ -57,7 +114,14 @@
 
   <div id="apn" class="ap"><label>Claude API Key:</label><input id="aki" type="password" placeholder="sk-ant-..."><button class="bs" onclick="saveKey()">저장</button><span class="h">키는 이 브라우저에만 저장됩니다</span></div>
 
-  <main class="mn">
+  <!-- ═══ Tab Navigation ═══ -->
+  <div class="tabs">
+    <button class="tab ac" id="tabConvert" onclick="switchTab('convert')">🔄 변환<span class="tb" id="tabConvertCount" style="display:none">0</span></button>
+    <button class="tab" id="tabHistory" onclick="switchTab('history')">📂 이력<span class="tb" id="tabHistoryCount">0</span></button>
+  </div>
+
+  <!-- ═══ Convert Panel ═══ -->
+  <main class="mn" id="convertPanel">
     <div id="dz" class="dz" onclick="$('fi').click()" ondragover="event.preventDefault();this.classList.add('ov')" ondragleave="this.classList.remove('ov')" ondrop="hDrop(event)">
       <input id="fi" type="file" accept=".pdf,.png,.jpg,.jpeg" multiple style="display:none" onchange="hFile(this)">
       <div class="ic" id="dic">📁</div>
@@ -66,22 +130,68 @@
     </div>
     <div id="flist" class="flist" style="display:none"></div>
     <div id="em" class="em"></div>
-    <div id="sconv" class="ctr m24" style="display:none"><button class="bp" onclick="go()">변환 시작</button><p style="font-size:12px;color:#aaa;margin-top:8px">슬라이드당 약 $0.03~0.10 API 비용</p></div>
-    <div id="spg" class="pg" style="display:none"><div class="pgh"><span class="st" id="pst">준비 중...</span><span class="ct" id="pct"></span></div><div class="pt"><div class="pf" id="pfl" style="width:0%"></div></div><div class="ctr" style="margin-top:12px"><button class="bstop" onclick="stopC()">⏹ 변환 중지</button></div></div>
+    <div id="sconv" class="ctr m24" style="display:none"><button class="bp" onclick="go()">변환 시작</button><p style="font-size:12px;color:#aaa;margin-top:8px">슬라이드당 약 $0.03~0.10 API 비용 · 변환 완료 시 자동 클라우드 저장</p></div>
+    <div id="spg" class="pg" style="display:none"><div class="pgh"><span class="st" id="pst">준비 중...</span><span class="ct" id="pct"></span></div><div class="pt"><div class="pf" id="pfl" style="width:0%"></div></div><div id="saveStatus" style="margin-top:8px;text-align:center"></div><div class="ctr" style="margin-top:12px"><button class="bstop" onclick="stopC()">⏹ 변환 중지</button></div></div>
     <div id="srs" class="rs" style="display:none"><div class="rsh"><h2 id="rsh2">변환 결과</h2><button class="bd" onclick="dlA()">전체 다운로드</button></div><div id="rl"></div><div class="ctr m24"><button class="bg" onclick="rst()">새 파일 변환</button></div></div>
   </main>
+
+  <!-- ═══ History Panel ═══ -->
+  <div id="historyPanel">
+    <div class="hist-controls">
+      <h2>📂 변환 이력</h2>
+      <div class="hist-search">
+        <input type="text" id="histSearch" placeholder="파일명 검색..." oninput="filterHistory()">
+        <select id="histSort" onchange="filterHistory()">
+          <option value="newest">최신순</option>
+          <option value="oldest">오래된순</option>
+          <option value="name">이름순</option>
+        </select>
+        <button class="hist-btn danger" onclick="deleteAllHistory()" title="전체 삭제">🗑 전체 삭제</button>
+      </div>
+    </div>
+    <div id="histList"></div>
+  </div>
+
   <footer class="ft">Autonomous Ship Group · Slide Converter · Powered by Claude AI</footer>
+</div>
+
+<!-- ═══ Preview Modal ═══ -->
+<div class="modal-overlay" id="previewModal" onclick="if(event.target===this)closePreview()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="previewTitle">미리보기</h3>
+      <div class="modal-header-actions">
+        <button class="hist-btn primary" id="previewDlBtn" onclick="">SVG 다운로드</button>
+        <button class="modal-close" onclick="closePreview()">✕</button>
+      </div>
+    </div>
+    <div class="modal-body" id="previewBody"></div>
+    <div class="modal-footer">
+      <span id="previewMeta"></span>
+      <span id="previewDate"></span>
+    </div>
+  </div>
 </div>
 
 <script>
 const $=id=>document.getElementById(id);
 firebase.initializeApp({apiKey:"AIzaSyBuGoE5qGFuuXH99nNy4Y4f3waY2ZS4Nbk",authDomain:"maritime-live-feed.firebaseapp.com",projectId:"maritime-live-feed",storageBucket:"maritime-live-feed.firebasestorage.app",messagingSenderId:"599051690662",appId:"1:599051690662:web:233e351eb8bd571dc10a67"});
 const auth=firebase.auth(),prov=new firebase.auth.GoogleAuthProvider();
+const storage=firebase.storage();
 const OK=["kjwooshi@gmail.com","chmsj19@gmail.com","csyeop1202@gmail.com"];
 pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-let files=[],res=[],stopped=false;
+let files=[],res=[],stopped=false,curUser=null;
 const MAX_FILES=20;
+
+// ═══ Tab ═══
+function switchTab(tab){
+  $("tabConvert").className=tab==="convert"?"tab ac":"tab";
+  $("tabHistory").className=tab==="history"?"tab ac":"tab";
+  $("convertPanel").style.display=tab==="convert"?"block":"none";
+  $("historyPanel").style.display=tab==="history"?"block":"none";
+  if(tab==="history")loadHistory();
+}
 
 // ═══ Cost ═══
 const PI=3/1e6,PO=15/1e6;let sC=0;
@@ -92,7 +202,7 @@ function uC(){const d=ldC(),td=new Date().toISOString().slice(0,10),dc=d.d[td]||
 function rstC(){if(!confirm("전체 누적 비용을 초기화할까요?"))return;localStorage.setItem("cost",'{"t":0,"s":0,"d":{}}');sC=0;uC()}
 
 // ═══ Auth ═══
-auth.onAuthStateChanged(u=>{if(u&&OK.includes(u.email)){$("login").style.display="none";$("app").style.display="block";$("un").textContent=u.displayName;$("up").src=u.photoURL;$("aki").value=localStorage.getItem("ak")||"";updA();uC()}else if(u){alert("접근 권한이 없는 계정입니다.\n("+u.email+")");auth.signOut()}else{$("login").style.display="flex";$("app").style.display="none"}});
+auth.onAuthStateChanged(u=>{if(u&&OK.includes(u.email)){curUser=u;$("login").style.display="none";$("app").style.display="block";$("un").textContent=u.displayName;$("up").src=u.photoURL;$("aki").value=localStorage.getItem("ak")||"";updA();uC();loadHistoryCount()}else if(u){alert("접근 권한이 없는 계정입니다.\n("+u.email+")");auth.signOut()}else{curUser=null;$("login").style.display="flex";$("app").style.display="none"}});
 function doLogin(){auth.signInWithPopup(prov)}function doOut(){auth.signOut()}
 
 // ═══ API Key ═══
@@ -100,6 +210,261 @@ function togApi(){$("apn").classList.toggle("v")}
 function saveKey(){localStorage.setItem("ak",$("aki").value.trim());updA();$("apn").classList.remove("v")}
 function updA(){const k=localStorage.getItem("ak"),b=$("abtn");if(k){b.className="ba y";b.textContent="✓ API 키 설정됨"}else{b.className="ba n";b.textContent="⚠ API 키 필요"}}
 function gk(){return localStorage.getItem("ak")||""}
+
+// ═══ Firebase Storage ═══
+function getUserPath(){
+  if(!curUser)return null;
+  return "conversions/"+curUser.uid;
+}
+
+async function saveToStorage(svgContent,fileName,slideNum,sourceName,cost){
+  if(!curUser)return null;
+  const basePath=getUserPath();
+  const ts=Date.now();
+  const dateStr=new Date().toISOString().slice(0,10);
+  const safeName=sourceName.replace(/[^a-zA-Z0-9가-힣._-]/g,"_");
+  const storagePath=basePath+"/"+dateStr+"/"+safeName+"_slide"+slideNum+"_"+ts+".svg";
+
+  try{
+    const ref=storage.ref(storagePath);
+    const blob=new Blob([svgContent],{type:"image/svg+xml"});
+    await ref.put(blob);
+
+    // 메타데이터 저장
+    const metaRef=storage.ref(basePath+"/meta/"+ts+"_"+slideNum+".json");
+    const meta={
+      fileName:safeName+"_slide"+slideNum+".svg",
+      sourceName:sourceName,
+      slideNum:slideNum,
+      cost:cost,
+      timestamp:ts,
+      date:dateStr,
+      storagePath:storagePath,
+      size:blob.size
+    };
+    await metaRef.putString(JSON.stringify(meta),undefined,{contentType:"application/json"});
+    return meta;
+  }catch(e){
+    console.error("Storage save error:",e);
+    return null;
+  }
+}
+
+// ═══ History ═══
+async function loadHistory(){
+  const list=$("histList");
+  list.innerHTML='<div class="hist-loading">📂 이력을 불러오는 중...</div>';
+  if(!curUser){list.innerHTML='<div class="hist-empty"><div class="icon">🔒</div><p>로그인이 필요합니다</p></div>';return}
+
+  try{
+    const basePath=getUserPath()+"/meta/";
+    const metaRef=storage.ref(basePath);
+    const metaList=await metaRef.listAll();
+
+    if(metaList.items.length===0){
+      list.innerHTML='<div class="hist-empty"><div class="icon">📭</div><p>변환 이력이 없습니다</p><p style="margin-top:4px;font-size:12px">파일을 변환하면 자동으로 저장됩니다</p></div>';
+      return;
+    }
+
+    const metas=[];
+    for(const item of metaList.items){
+      try{
+        const url=await item.getDownloadURL();
+        const resp=await fetch(url);
+        const meta=await resp.json();
+        meta._metaPath=item.fullPath;
+        metas.push(meta);
+      }catch(e){console.warn("Meta load error:",e)}
+    }
+
+    window._historyData=metas;
+    renderHistory(metas);
+  }catch(e){
+    console.error("History load error:",e);
+    list.innerHTML='<div class="hist-empty"><div class="icon">⚠️</div><p>이력을 불러올 수 없습니다</p><p style="font-size:12px;margin-top:4px">'+escH(e.message)+'</p></div>';
+  }
+}
+
+async function loadHistoryCount(){
+  if(!curUser)return;
+  try{
+    const basePath=getUserPath()+"/meta/";
+    const metaRef=storage.ref(basePath);
+    const metaList=await metaRef.listAll();
+    $("tabHistoryCount").textContent=metaList.items.length;
+  }catch(e){}
+}
+
+function renderHistory(metas){
+  const list=$("histList");
+  const search=($("histSearch").value||"").toLowerCase();
+  const sort=$("histSort").value;
+
+  let filtered=metas.filter(m=>{
+    if(!search)return true;
+    return (m.fileName||"").toLowerCase().includes(search)||(m.sourceName||"").toLowerCase().includes(search);
+  });
+
+  if(sort==="newest")filtered.sort((a,b)=>b.timestamp-a.timestamp);
+  else if(sort==="oldest")filtered.sort((a,b)=>a.timestamp-b.timestamp);
+  else if(sort==="name")filtered.sort((a,b)=>(a.fileName||"").localeCompare(b.fileName||""));
+
+  if(filtered.length===0){
+    list.innerHTML='<div class="hist-empty"><div class="icon">🔍</div><p>검색 결과가 없습니다</p></div>';
+    return;
+  }
+
+  const groups={};
+  filtered.forEach(m=>{
+    const d=m.date||new Date(m.timestamp).toISOString().slice(0,10);
+    if(!groups[d])groups[d]=[];
+    groups[d].push(m);
+  });
+
+  let html="";
+  const dates=Object.keys(groups).sort((a,b)=>sort==="oldest"?a.localeCompare(b):b.localeCompare(a));
+  dates.forEach(date=>{
+    const items=groups[date];
+    const dateLabel=formatDateLabel(date);
+    html+='<div class="hist-group">';
+    html+='<div class="hist-date">'+dateLabel+' ('+items.length+'개)</div>';
+    items.forEach(m=>{
+      const sizeKB=(m.size/1024).toFixed(1);
+      const time=new Date(m.timestamp).toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"});
+      html+='<div class="hist-card" onclick="previewFromHistory(\''+encodeURIComponent(m.storagePath)+'\',\''+encodeURIComponent(m.fileName)+'\')">';
+      html+='<div class="hist-thumb"><span class="no-thumb">📄</span></div>';
+      html+='<div class="hist-info">';
+      html+='<div class="hist-name">'+escH(m.fileName)+'</div>';
+      html+='<div class="hist-meta">';
+      html+='<span>📎 '+escH(m.sourceName||"-")+'</span>';
+      html+='<span>⏰ '+time+'</span>';
+      html+='<span>📏 '+sizeKB+' KB</span>';
+      if(m.cost>0)html+='<span>💰 $'+m.cost.toFixed(3)+'</span>';
+      html+='</div></div>';
+      html+='<div class="hist-actions">';
+      html+='<button class="hist-btn primary" onclick="event.stopPropagation();downloadFromHistory(\''+encodeURIComponent(m.storagePath)+'\',\''+encodeURIComponent(m.fileName)+'\')">⬇ 다운로드</button>';
+      html+='<button class="hist-btn danger" onclick="event.stopPropagation();deleteFromHistory(\''+encodeURIComponent(m.storagePath)+'\',\''+encodeURIComponent(m._metaPath)+'\')">🗑</button>';
+      html+='</div></div>';
+    });
+    html+='</div>';
+  });
+
+  list.innerHTML=html;
+  loadThumbnails(filtered);
+}
+
+async function loadThumbnails(metas){
+  const cards=document.querySelectorAll(".hist-card");
+  for(let i=0;i<Math.min(metas.length,cards.length);i++){
+    try{
+      const url=await storage.ref(metas[i].storagePath).getDownloadURL();
+      const resp=await fetch(url);
+      const svgText=await resp.text();
+      const thumb=cards[i].querySelector(".hist-thumb");
+      if(thumb){
+        const safe=svgText.replace(/<script[\s\S]*?<\/script>/gi,"");
+        thumb.innerHTML=safe;
+      }
+    }catch(e){}
+  }
+}
+
+function filterHistory(){
+  if(window._historyData)renderHistory(window._historyData);
+}
+
+function formatDateLabel(dateStr){
+  const d=new Date(dateStr+"T00:00:00");
+  const today=new Date();today.setHours(0,0,0,0);
+  const diff=Math.floor((today-d)/(1000*60*60*24));
+  if(diff===0)return "오늘";
+  if(diff===1)return "어제";
+  if(diff<7)return diff+"일 전";
+  return d.getFullYear()+"년 "+(d.getMonth()+1)+"월 "+d.getDate()+"일";
+}
+
+function escH(s){return s?s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"):""}
+
+// ═══ Preview Modal ═══
+async function previewFromHistory(encodedPath,encodedName){
+  const path=decodeURIComponent(encodedPath);
+  const name=decodeURIComponent(encodedName);
+  $("previewTitle").textContent=name;
+  $("previewBody").innerHTML='<div style="text-align:center;padding:40px;color:#888">불러오는 중...</div>';
+  $("previewModal").classList.add("show");
+
+  try{
+    const url=await storage.ref(path).getDownloadURL();
+    const resp=await fetch(url);
+    const svgText=await resp.text();
+    const safe=svgText.replace(/<script[\s\S]*?<\/script>/gi,"");
+    $("previewBody").innerHTML=safe;
+
+    const sizeKB=(new Blob([svgText]).size/1024).toFixed(1);
+    $("previewMeta").textContent="크기: "+sizeKB+" KB";
+
+    $("previewDlBtn").onclick=function(){
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(new Blob([svgText],{type:"image/svg+xml"}));
+      a.download=name;
+      a.click();
+    };
+  }catch(e){
+    $("previewBody").innerHTML='<div style="text-align:center;padding:40px;color:#dc2626">로드 실패: '+escH(e.message)+'</div>';
+  }
+}
+
+function closePreview(){$("previewModal").classList.remove("show")}
+
+async function downloadFromHistory(encodedPath,encodedName){
+  const path=decodeURIComponent(encodedPath);
+  const name=decodeURIComponent(encodedName);
+  try{
+    const url=await storage.ref(path).getDownloadURL();
+    const resp=await fetch(url);
+    const svgText=await resp.text();
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([svgText],{type:"image/svg+xml"}));
+    a.download=name;
+    a.click();
+  }catch(e){alert("다운로드 실패: "+e.message)}
+}
+
+async function deleteFromHistory(encodedSvgPath,encodedMetaPath){
+  if(!confirm("이 SVG를 삭제할까요?"))return;
+  const svgPath=decodeURIComponent(encodedSvgPath);
+  const metaPath=decodeURIComponent(encodedMetaPath);
+  try{
+    await storage.ref(svgPath).delete();
+    await storage.ref(metaPath).delete();
+    if(window._historyData){
+      window._historyData=window._historyData.filter(m=>m.storagePath!==svgPath);
+      renderHistory(window._historyData);
+      $("tabHistoryCount").textContent=window._historyData.length;
+    }
+  }catch(e){alert("삭제 실패: "+e.message)}
+}
+
+async function deleteAllHistory(){
+  if(!confirm("모든 변환 이력을 삭제할까요?\n이 작업은 되돌릴 수 없습니다."))return;
+  if(!window._historyData||window._historyData.length===0)return;
+
+  const list=$("histList");
+  list.innerHTML='<div class="hist-loading">🗑 삭제 중...</div>';
+
+  let deleted=0;
+  for(const m of window._historyData){
+    try{
+      await storage.ref(m.storagePath).delete();
+      await storage.ref(m._metaPath).delete();
+      deleted++;
+    }catch(e){console.warn("Delete error:",e)}
+  }
+  window._historyData=[];
+  $("tabHistoryCount").textContent="0";
+  list.innerHTML='<div class="hist-empty"><div class="icon">📭</div><p>변환 이력이 없습니다</p><p style="margin-top:4px;font-size:12px">파일을 변환하면 자동으로 저장됩니다</p></div>';
+  alert(deleted+"개 파일이 삭제되었습니다.");
+}
 
 // ═══ File ═══
 function hDrop(e){e.preventDefault();e.currentTarget.classList.remove("ov");pickFiles(e.dataTransfer.files)}
@@ -144,7 +509,6 @@ async function go(){
   hE();sC=0;uC();
 
   try{
-    // 모든 파일에서 이미지 추출
     sP("파일 처리 중...",0,0);
     let pages=[];
     for(const f of files){
@@ -163,19 +527,34 @@ async function go(){
     }
 
     res=[];
+    let saveCount=0,saveFail=0;
     for(let i=0;i<pages.length;i++){
       if(stopped){sP("중지됨 — "+res.filter(r=>r.svg).length+"개 완료",i,pages.length);break}
       sP("슬라이드 "+(i+1)+"/"+pages.length+" 변환 중...",i+1,pages.length);
       try{
         const r=await toSvg(pages[i],ak);
         res.push({n:i+1,name:pages[i].name,svg:r.svg,e:null,cost:r.cost});
+
+        // ★ 자동 클라우드 저장
+        updateSaveStatus("saving","☁️ 슬라이드 "+(i+1)+" 저장 중...");
+        const saved=await saveToStorage(r.svg,pages[i].name+"_slide"+(i+1)+".svg",i+1,pages[i].name,r.cost);
+        if(saved){saveCount++;updateSaveStatus("saved","✅ "+saveCount+"개 저장 완료")}
+        else{saveFail++;updateSaveStatus("failed","⚠️ 저장 실패 "+saveFail+"개")}
       }catch(e){
         res.push({n:i+1,name:pages[i].name,svg:null,e:e.message,cost:0});
       }
     }
     if(!stopped)sP("변환 완료!",pages.length,pages.length);
+    if(saveCount>0)updateSaveStatus("saved","✅ "+saveCount+"개 클라우드 저장 완료");
+    loadHistoryCount();
     setTimeout(()=>{$("spg").style.display="none";if(res.length>0)showR();else $("sconv").style.display="block"},600);
   }catch(e){$("spg").style.display="none";$("sconv").style.display="block";sE(e.message)}
+}
+
+function updateSaveStatus(state,msg){
+  const el=$("saveStatus");
+  const cls=state==="saving"?"save-badge saving":state==="saved"?"save-badge saved":"save-badge failed";
+  el.innerHTML='<span class="'+cls+'">'+msg+'</span>';
 }
 
 // PDF → 이미지 배열
@@ -368,9 +747,13 @@ function rst(){
   $("dlb").textContent="PDF 또는 PNG/JPG 파일을 드래그하거나 클릭";
   $("dsb").textContent="PDF(여러 페이지) 또는 이미지(최대 20장)를 편집 가능한 SVG로 변환";
   $("fi").value="";
+  $("saveStatus").innerHTML="";
 }
 function sE(m){const e=$("em");e.textContent=m;e.style.display="block"}
 function hE(){$("em").style.display="none"}
+
+// ESC로 모달 닫기
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closePreview()});
 </script>
 </body>
 </html>
