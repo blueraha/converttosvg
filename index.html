@@ -547,7 +547,7 @@ async function go(){
 
 function updateSS(st,msg){const el=$("saveStatus");el.innerHTML='<span class="save-b '+st+'">'+msg+'</span>'}
 
-// PDF → images (PRESERVED)
+// PDF → pages with image + structured text data
 async function pdf2img(file){
   const buf=await file.arrayBuffer();
   const pdf=await pdfjsLib.getDocument({data:buf}).promise;
@@ -558,12 +558,135 @@ async function pdf2img(file){
     const c=document.createElement("canvas");
     c.width=vp.width;c.height=vp.height;
     await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
-    pgs.push({name:file.name+" p"+i,b64:c.toDataURL("image/png").split(",")[1],cv:c});
+
+    // Extract structured text data with positions
+    const textContent=await pg.getTextContent();
+    const vpNorm=pg.getViewport({scale:1});
+    const pdfW=vpNorm.width,pdfH=vpNorm.height;
+    const scaleX=1280/pdfW,scaleY=720/pdfH;
+
+    const textItems=[];
+    for(const item of textContent.items){
+      if(!item.str||!item.str.trim())continue;
+      const tx=item.transform;
+      // transform: [scaleX, skewX, skewY, scaleY, translateX, translateY]
+      const fontSize=Math.abs(tx[3]);
+      const x=tx[4]*scaleX;
+      const y=720-(tx[5]*scaleY); // PDF y is bottom-up
+      const w=item.width*scaleX;
+      const h=fontSize*scaleY;
+      textItems.push({
+        text:item.str,
+        x:Math.round(x*10)/10,
+        y:Math.round(y*10)/10,
+        w:Math.round(w*10)/10,
+        h:Math.round(h*10)/10,
+        fontSize:Math.round(fontSize*scaleY*10)/10,
+        fontName:item.fontName||""
+      });
+    }
+
+    // Group nearby text items into lines
+    const lines=groupTextLines(textItems);
+
+    // Extract operator stream for shape detection
+    const ops=await pg.getOperatorList();
+    const shapes=extractShapes(ops,scaleX,scaleY,pdfH);
+
+    pgs.push({
+      name:file.name+" p"+i,
+      b64:c.toDataURL("image/png").split(",")[1],
+      cv:c,
+      textData:lines,
+      shapeData:shapes,
+      isPdf:true
+    });
   }
   return pgs;
 }
 
-// Image → base64 (PRESERVED)
+// Group text items into logical lines (items with similar Y)
+function groupTextLines(items){
+  if(!items.length)return[];
+  const sorted=[...items].sort((a,b)=>a.y-b.y||a.x-b.x);
+  const lines=[];
+  let curLine=[sorted[0]];
+
+  for(let i=1;i<sorted.length;i++){
+    const prev=curLine[curLine.length-1];
+    const cur=sorted[i];
+    // Same line if Y difference < half font size
+    if(Math.abs(cur.y-prev.y)<Math.max(prev.fontSize,cur.fontSize)*0.6){
+      curLine.push(cur);
+    }else{
+      lines.push(mergeLine(curLine));
+      curLine=[cur];
+    }
+  }
+  if(curLine.length)lines.push(mergeLine(curLine));
+  return lines;
+}
+
+function mergeLine(items){
+  items.sort((a,b)=>a.x-b.x);
+  const text=items.map(i=>i.text).join(" ").trim();
+  const x=items[0].x;
+  const y=items[0].y;
+  const lastItem=items[items.length-1];
+  const w=Math.round(((lastItem.x+lastItem.w)-x)*10)/10;
+  const fontSize=Math.round(items.reduce((s,i)=>s+i.fontSize,0)/items.length*10)/10;
+  const isBold=items.some(i=>i.fontName.toLowerCase().includes("bold"));
+  const hasKorean=/[가-힣]/.test(text);
+  return{text,x,y,w,fontSize,isBold,hasKorean};
+}
+
+// Extract basic shape info from PDF operator list
+function extractShapes(ops,scaleX,scaleY,pdfH){
+  const shapes=[];
+  const args=ops.argsArray;
+  const fns=ops.fnArray;
+  let curPath=[];
+  let fillColor=null,strokeColor=null;
+
+  for(let i=0;i<fns.length;i++){
+    const fn=fns[i];
+    // setFillRGBColor
+    if(fn===pdfjsLib.OPS.setFillRGBColor&&args[i]){
+      const c=args[i];
+      fillColor=rgbHex(c[0],c[1],c[2]);
+    }
+    // setStrokeRGBColor
+    if(fn===pdfjsLib.OPS.setStrokeRGBColor&&args[i]){
+      const c=args[i];
+      strokeColor=rgbHex(c[0],c[1],c[2]);
+    }
+    // rectangle
+    if(fn===pdfjsLib.OPS.rectangle&&args[i]){
+      const a=args[i];
+      const x=a[0]*scaleX;
+      const rawY=a[1];
+      const w=a[2]*scaleX;
+      const h=Math.abs(a[3])*scaleY;
+      const y=720-((rawY+Math.abs(a[3]))*scaleY);
+      if(w>5&&h>5){ // skip tiny rects
+        shapes.push({
+          type:"rect",
+          x:Math.round(x),y:Math.round(y),
+          w:Math.round(Math.abs(w)),h:Math.round(h),
+          fill:fillColor,stroke:strokeColor
+        });
+      }
+    }
+  }
+  return shapes;
+}
+
+function rgbHex(r,g,b){
+  const toH=v=>Math.round((v>1?v:v*255)).toString(16).padStart(2,"0");
+  return"#"+toH(r)+toH(g)+toH(b);
+}
+
+// Image → base64 (no PDF data available)
 function img2b64(file){
   return new Promise((ok,fail)=>{
     const reader=new FileReader();
@@ -573,7 +696,7 @@ function img2b64(file){
         const c=document.createElement("canvas");
         c.width=img.width;c.height=img.height;
         c.getContext("2d").drawImage(img,0,0);
-        ok({name:file.name,b64:c.toDataURL("image/png").split(",")[1],cv:c});
+        ok({name:file.name,b64:c.toDataURL("image/png").split(",")[1],cv:c,textData:[],shapeData:[],isPdf:false});
       };
       img.src=reader.result;
     };
@@ -604,10 +727,13 @@ async function api(ak,msgs,mt){
   return{text:d.content?.[0]?.text||"",cost:c};
 }
 
-// ═══ Core: SVG conversion (PRESERVED with improved prompt) ═══
+// ═══ Core: HYBRID SVG conversion ═══
+// PDF: structured data (text positions, shapes) + image → Claude assembles
+// PNG: image only → Claude generates (original approach)
 async function toSvg(pg,ak){
   let tc=0;
-  // Pass 1: photo detection
+
+  // Pass 1: photo detection (same for both)
   const r1=await api(ak,[{role:"user",content:[
     {type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},
     {type:"text",text:`Find photo/screenshot/real image regions in this slide.
@@ -629,10 +755,45 @@ Example: [{"x":65,"y":210,"w":230,"h":160}]`}
     pi=`\n\n⚠️ Photo handling:\n${pd.length} photo(s) found. Insert these exact tags at each location:\n${pd.map(p=>'<image href="data:image/png;base64,PH_'+p.id+'" x="'+p.x+'" y="'+p.y+'" width="'+p.w+'" height="'+p.h+'" />').join("\n")}\n\nNEVER: redraw photo areas with rect/path/colors, overlap text on photos.\nKeep PH_p0 etc. placeholders as-is.`;
   }
 
-  // Pass 2: SVG generation
-  const r2=await api(ak,[{role:"user",content:[
-    {type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},
-    {type:"text",text:`Reproduce this presentation slide as an editable SVG precisely.
+  // Pass 2: SVG generation — different approach for PDF vs image
+  let prompt;
+  if(pg.isPdf&&(pg.textData.length>0||pg.shapeData.length>0)){
+    // HYBRID: structured data + image
+    const structuredInfo=buildStructuredInfo(pg);
+    prompt=`Reproduce this presentation slide as an editable SVG.
+This SVG will be used in PowerPoint via "Convert to Shapes".
+${pi}
+
+★★★ STRUCTURED DATA FROM PDF (USE THESE EXACT POSITIONS) ★★★
+The following text and shape data was extracted programmatically from the PDF.
+Text positions, font sizes, and coordinates are ACCURATE — use them directly.
+
+${structuredInfo}
+
+★★★ YOUR JOB ★★★
+1. Use the EXACT text content and positions from the structured data above.
+2. Look at the image to determine: background colors, shape colors, text colors, visual layout, icons.
+3. For each text item: place <text> at the given x,y with the given fontSize. Adjust y slightly if needed for visual alignment.
+4. For each shape: use the given coordinates and colors.
+5. Add any visual elements visible in the image but NOT in the structured data (decorative shapes, icons, dividers, etc).
+6. viewBox="0 0 1280 720" fixed.
+
+★ RULES:
+- Each element EXACTLY ONCE. No duplicates.
+- Match background color to original. White bg → fill="#ffffff". Never add colors not in original.
+- No rx/ry on rect. No gradient/filter/clipPath.
+- English text: font-family="Calibri, sans-serif"
+- Korean text: font-family="Malgun Gothic, Calibri, sans-serif"
+- Bold text: font-weight="bold"
+- Remove any "NotebookLM" watermark text.
+
+★ Layout order:
+1) Background rect 2) Large shapes 3) Cards/boxes 4) Photos 5) Icons 6) Text on top
+
+Output: <svg ... </svg> only. No explanation.`;
+  }else{
+    // IMAGE ONLY: original approach
+    prompt=`Reproduce this presentation slide as an editable SVG precisely.
 This SVG will be used in PowerPoint via "Convert to Shapes".
 ${pi}
 
@@ -674,13 +835,17 @@ ${pi}
 
 ★ Remove:
 - "NotebookLM" watermark text — absolutely never include
-- "Notebook LM", "notebooklm", "NotebookLM" — all variations excluded
 
 ★ Colors: match all shape/text colors to original exactly
 ★ Match shape fill colors exactly (white=white, blue=blue)
 ★ Match shape stroke color/width to original
 
-Output: Start with <svg, end with </svg>. Pure SVG only, no explanations or \`\`\`.`}
+Output: Start with <svg, end with </svg>. Pure SVG only, no explanations or \`\`\`.`;
+  }
+
+  const r2=await api(ak,[{role:"user",content:[
+    {type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},
+    {type:"text",text:prompt}
   ]}],16000);
   tc+=r2.cost;
 
@@ -693,6 +858,36 @@ Output: Start with <svg, end with </svg>. Pure SVG only, no explanations or \`\`
   pd.forEach(p=>{svg=svg.replace(new RegExp("PH_"+p.id,"g"),p.b)});
 
   return{svg,cost:tc};
+}
+
+// Build structured text/shape info string for the prompt
+function buildStructuredInfo(pg){
+  let info="";
+
+  if(pg.shapeData.length>0){
+    info+="=== SHAPES (rectangles from PDF) ===\n";
+    // Sort by area descending (background first)
+    const sorted=[...pg.shapeData].sort((a,b)=>(b.w*b.h)-(a.w*a.h));
+    sorted.forEach((s,i)=>{
+      info+=`rect #${i+1}: x=${s.x} y=${s.y} w=${s.w} h=${s.h}`;
+      if(s.fill)info+=` fill="${s.fill}"`;
+      if(s.stroke)info+=` stroke="${s.stroke}"`;
+      info+="\n";
+    });
+    info+="\n";
+  }
+
+  if(pg.textData.length>0){
+    info+="=== TEXT (exact content and positions from PDF) ===\n";
+    pg.textData.forEach((t,i)=>{
+      info+=`text #${i+1}: x=${t.x} y=${t.y} fontSize=${t.fontSize}`;
+      if(t.isBold)info+=" bold";
+      if(t.hasKorean)info+=" [KR]";
+      info+=` → "${t.text}"\n`;
+    });
+  }
+
+  return info||"(No structured data extracted)";
 }
 
 // ═══ UI (PRESERVED download logic exactly) ═══
