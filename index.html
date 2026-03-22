@@ -433,20 +433,7 @@ async function loadThumbnails(metas){
     try{
       const url=await storage.ref(metas[i].storagePath).getDownloadURL();
       const thumb=cards[i].querySelector(".h-thumb");
-      if(thumb){
-        // Try XHR first for inline SVG, fall back to img
-        const xhr=new XMLHttpRequest();
-        xhr.open("GET",url);
-        xhr.onload=()=>{
-          if(xhr.status===200&&xhr.responseText.includes("<svg")){
-            thumb.innerHTML=xhr.responseText.replace(/<script[\s\S]*?<\/script>/gi,"");
-          }else{
-            thumb.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:contain" alt="">';
-          }
-        };
-        xhr.onerror=()=>{thumb.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:contain" alt="">'};
-        xhr.send();
-      }
+      if(thumb)thumb.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:contain" alt="">';
     }catch(e){}
   }
 }
@@ -463,36 +450,18 @@ async function previewFromHistory(ep,en){
   $("previewModal").classList.add("show");
   try{
     const url=await storage.ref(path).getDownloadURL();
-    // Use XHR which handles CORS differently than fetch for Firebase Storage
-    const svgText=await new Promise((ok,fail)=>{
-      const xhr=new XMLHttpRequest();
-      xhr.open("GET",url);
-      xhr.onload=()=>xhr.status===200?ok(xhr.responseText):fail(new Error("HTTP "+xhr.status));
-      xhr.onerror=()=>{
-        // Fallback: show in iframe if XHR also fails
-        ok(null);
-      };
-      xhr.send();
-    });
-    if(svgText){
-      $("previewBody").innerHTML=svgText.replace(/<script[\s\S]*?<\/script>/gi,"");
-      $("previewMeta").textContent="Size: "+(new Blob([svgText]).size/1024).toFixed(1)+" KB";
-      $("previewDlBtn").onclick=function(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([svgText],{type:"image/svg+xml"}));a.download=name;a.click()};
-    }else{
-      // Fallback: embed as image
-      $("previewBody").innerHTML='<img src="'+url+'" style="width:100%;height:auto;border-radius:var(--r)" alt="SVG Preview">';
-      $("previewMeta").textContent="";
-      $("previewDlBtn").onclick=function(){const a=document.createElement("a");a.href=url;a.download=name;a.target="_blank";a.click()};
-    }
+    $("previewBody").innerHTML='<img src="'+url+'" style="width:100%;height:auto;background:#fff;border-radius:var(--r);box-shadow:0 1px 4px rgba(0,0,0,.06)" alt="SVG Preview">';
+    $("previewMeta").textContent=name;
+    $("previewDlBtn").onclick=function(){window.open(url,"_blank")};
   }catch(e){$("previewBody").innerHTML='<div style="text-align:center;padding:40px;color:var(--red)">Failed: '+escH(e.message)+'</div>'}
 }
 function closePreview(){$("previewModal").classList.remove("show")}
 
 async function downloadFromHistory(ep,en){
-  const path=decodeURIComponent(ep),name=decodeURIComponent(en);
+  const path=decodeURIComponent(ep);
   try{
     const url=await storage.ref(path).getDownloadURL();
-    const a=document.createElement("a");a.href=url;a.download=name;a.target="_blank";a.click();
+    window.open(url,"_blank");
   }catch(e){alert("Download failed: "+e.message)}
 }
 
