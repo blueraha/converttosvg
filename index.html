@@ -27,22 +27,25 @@
     .mn{max-width:960px;margin:40px auto;padding:0 24px}
     .dz{padding:60px 40px;border:2px dashed #ccc;border-radius:16px;background:#fff;text-align:center;cursor:pointer;transition:all .2s}.dz.ov{border-color:#c89250;background:rgba(200,146,80,.04)}.dz.ok{border-color:#a5d6a7;background:#f8fdf8}.dz .ic{font-size:48px;margin-bottom:12px}.dz .lb{font-size:18px;font-weight:600;color:#555;margin-bottom:8px}.dz.ok .lb{color:#1a2535}.dz .sb{font-size:13px;color:#aaa}
     .bp{padding:14px 48px;background:linear-gradient(135deg,#1a2d4a,#2a4a6a);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;box-shadow:0 4px 16px rgba(26,45,74,.3);transition:all .2s}.bp:hover{transform:translateY(-2px)}
-    .bd{padding:10px 20px;background:#c89250;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600}.bs{padding:8px 16px;background:#1a2d4a;color:#fff;border:none;border-radius:8px;font-size:13px}.bg{padding:10px 24px;background:0 0;border:1px solid #ccc;border-radius:10px;font-size:14px;color:#666}
+    .bd{padding:10px 20px;background:#c89250;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600}.bs{padding:8px 16px;background:#1a2d4a;color:#fff;border:none;border-radius:8px;font-size:13px}.bstop{padding:8px 24px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600}.bg{padding:10px 24px;background:0 0;border:1px solid #ccc;border-radius:10px;font-size:14px;color:#666}
     .pg{margin-top:24px;padding:24px;background:#fff;border-radius:12px;border:1px solid #e8eaed}.pgh{display:flex;justify-content:space-between;margin-bottom:8px}.pgh .st{font-size:14px;font-weight:600;color:#1a2535}.pgh .ct{font-size:13px;color:#888}.pt{height:6px;background:#e8eaed;border-radius:3px;overflow:hidden}.pf{height:100%;border-radius:3px;background:linear-gradient(90deg,#1a2d4a,#c89250);transition:width .5s ease}
     .rs{margin-top:32px}.rsh{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.rsh h2{font-size:20px;font-weight:700;color:#1a2535}
-    .cd{padding:20px;background:#fff;border-radius:12px;border:1px solid #e8eaed;margin-bottom:16px}.cd.er{border-color:#fecaca}.cdh{display:flex;justify-content:space-between;align-items:center}.cdh .t{font-size:15px;font-weight:600;color:#1a2535}.cdh .t.e{color:#dc2626}
+    .cd{padding:20px;background:#fff;border-radius:12px;border:1px solid #e8eaed;margin-bottom:16px}.cd.er{border-color:#fecaca}.cdh{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}.cdh .t{font-size:15px;font-weight:600;color:#1a2535}.cdh .t.e{color:#dc2626}
     .pv{margin-top:16px;background:#f8f8f8;border-radius:8px;padding:8px;overflow:hidden}.pv svg{width:100%;height:auto;display:block}
     .em{margin-top:16px;padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;font-size:14px;color:#dc2626;display:none}
     .ctr{text-align:center}.m24{margin-top:24px}.ft{text-align:center;padding:24px;color:#aaa;font-size:12px}
     .cb2{display:inline-block;padding:3px 8px;background:#f0f4f8;border-radius:6px;font-size:11px;color:#666;margin-left:8px}
+    .flist{margin-top:12px;font-size:13px;color:#555;text-align:left;max-height:120px;overflow-y:auto;padding:8px 12px;background:#f8f8f8;border-radius:8px}
+    .flist div{padding:2px 0;display:flex;justify-content:space-between}
+    .flist .fn{color:#1a2535}.flist .fs{color:#aaa}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}.pu{animation:pulse 1.5s infinite}
   </style>
 </head>
 <body>
-<div id="login"><div class="lc"><div class="ll">⚓</div><h1>Slide Converter</h1><p class="s1">autonomousship.org</p><p class="s2">PDF → 편집 가능한 SVG</p><button class="gb" onclick="doLogin()"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google로 로그인</button><p class="s3">허용된 계정만 접근 가능합니다</p></div></div>
+<div id="login"><div class="lc"><div class="ll">⚓</div><h1>Slide Converter</h1><p class="s1">autonomousship.org</p><p class="s2">PDF / PNG → 편집 가능한 SVG</p><button class="gb" onclick="doLogin()"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google로 로그인</button><p class="s3">허용된 계정만 접근 가능합니다</p></div></div>
 
 <div id="app">
-  <header class="hd"><div class="hl"><div class="hlg">⚓</div><div><span class="ht">Slide Converter</span><span class="hs">PDF → SVG</span></div></div><div class="hr"><button id="abtn" class="ba n" onclick="togApi()">⚠ API 키 필요</button><div class="ui"><img id="up" src="" alt=""><span id="un"></span><button class="bo" onclick="doOut()">로그아웃</button></div></div></header>
+  <header class="hd"><div class="hl"><div class="hlg">⚓</div><div><span class="ht">Slide Converter</span><span class="hs">PDF / PNG → SVG</span></div></div><div class="hr"><button id="abtn" class="ba n" onclick="togApi()">⚠ API 키 필요</button><div class="ui"><img id="up" src="" alt=""><span id="un"></span><button class="bo" onclick="doOut()">로그아웃</button></div></div></header>
 
   <div class="cb">
     <div class="ci"><span class="l">이번 변환:</span><span class="v" id="cC">$0.000</span></div><div class="cdv"></div>
@@ -56,12 +59,15 @@
 
   <main class="mn">
     <div id="dz" class="dz" onclick="$('fi').click()" ondragover="event.preventDefault();this.classList.add('ov')" ondragleave="this.classList.remove('ov')" ondrop="hDrop(event)">
-      <input id="fi" type="file" accept=".pdf" style="display:none" onchange="hFile(this)">
-      <div class="ic" id="dic">📁</div><p class="lb" id="dlb">PDF 파일을 드래그하거나 클릭하여 선택</p><p class="sb" id="dsb">프레젠테이션 PDF를 편집 가능한 SVG로 변환합니다</p>
+      <input id="fi" type="file" accept=".pdf,.png,.jpg,.jpeg" multiple style="display:none" onchange="hFile(this)">
+      <div class="ic" id="dic">📁</div>
+      <p class="lb" id="dlb">PDF 또는 PNG/JPG 파일을 드래그하거나 클릭</p>
+      <p class="sb" id="dsb">PDF(여러 페이지) 또는 이미지(최대 20장)를 편집 가능한 SVG로 변환</p>
     </div>
+    <div id="flist" class="flist" style="display:none"></div>
     <div id="em" class="em"></div>
     <div id="sconv" class="ctr m24" style="display:none"><button class="bp" onclick="go()">변환 시작</button><p style="font-size:12px;color:#aaa;margin-top:8px">슬라이드당 약 $0.03~0.10 API 비용</p></div>
-    <div id="spg" class="pg" style="display:none"><div class="pgh"><span class="st" id="pst">준비 중...</span><span class="ct" id="pct"></span></div><div class="pt"><div class="pf" id="pfl" style="width:0%"></div></div><div class="ctr" style="margin-top:12px"><button onclick="stopConvert()" style="padding:8px 24px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600">⏹ 변환 중지</button></div></div>
+    <div id="spg" class="pg" style="display:none"><div class="pgh"><span class="st" id="pst">준비 중...</span><span class="ct" id="pct"></span></div><div class="pt"><div class="pf" id="pfl" style="width:0%"></div></div><div class="ctr" style="margin-top:12px"><button class="bstop" onclick="stopC()">⏹ 변환 중지</button></div></div>
     <div id="srs" class="rs" style="display:none"><div class="rsh"><h2 id="rsh2">변환 결과</h2><button class="bd" onclick="dlA()">전체 다운로드</button></div><div id="rl"></div><div class="ctr m24"><button class="bg" onclick="rst()">새 파일 변환</button></div></div>
   </main>
   <footer class="ft">Autonomous Ship Group · Slide Converter · Powered by Claude AI</footer>
@@ -73,10 +79,12 @@ firebase.initializeApp({apiKey:"AIzaSyBuGoE5qGFuuXH99nNy4Y4f3waY2ZS4Nbk",authDom
 const auth=firebase.auth(),prov=new firebase.auth.GoogleAuthProvider();
 const OK=["kjwooshi@gmail.com","chmsj19@gmail.com","csyeop1202@gmail.com"];
 pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-let cFile=null,res=[];
+
+let files=[],res=[],stopped=false;
+const MAX_FILES=20;
 
 // ═══ Cost ═══
-const PI=3/1e6,PO=15/1e6; let sC=0;
+const PI=3/1e6,PO=15/1e6;let sC=0;
 function ldC(){return JSON.parse(localStorage.getItem("cost")||'{"t":0,"s":0,"d":{}}')}
 function svC(d){localStorage.setItem("cost",JSON.stringify(d))}
 function addC(i,o){const c=i*PI+o*PO;sC+=c;const d=ldC();d.t+=c;d.s++;const td=new Date().toISOString().slice(0,10);d.d[td]=(d.d[td]||0)+c;svC(d);uC();return c}
@@ -94,130 +102,249 @@ function updA(){const k=localStorage.getItem("ak"),b=$("abtn");if(k){b.className
 function gk(){return localStorage.getItem("ak")||""}
 
 // ═══ File ═══
-function hDrop(e){e.preventDefault();e.currentTarget.classList.remove("ov");if(e.dataTransfer.files[0])pick(e.dataTransfer.files[0])}
-function hFile(i){if(i.files[0])pick(i.files[0])}
-function pick(f){if(!f.name.toLowerCase().endsWith(".pdf")){sE("PDF 파일만 가능합니다.");return}cFile=f;res=[];hE();$("srs").style.display="none";$("dz").classList.add("ok");$("dic").textContent="📄";$("dlb").textContent=f.name;$("dsb").textContent=(f.size/1048576).toFixed(1)+" MB · 클릭하여 다른 파일 선택";$("sconv").style.display="block"}
+function hDrop(e){e.preventDefault();e.currentTarget.classList.remove("ov");pickFiles(e.dataTransfer.files)}
+function hFile(inp){pickFiles(inp.files)}
+
+function pickFiles(flist){
+  const arr=Array.from(flist);
+  const valid=arr.filter(f=>/\.(pdf|png|jpe?g)$/i.test(f.name));
+  if(valid.length===0){sE("PDF, PNG, JPG 파일만 가능합니다.");return}
+  if(valid.length>MAX_FILES){sE("최대 "+MAX_FILES+"개까지 업로드 가능합니다.");return}
+  files=valid;res=[];hE();
+  $("srs").style.display="none";
+  $("dz").classList.add("ok");
+
+  if(files.length===1){
+    $("dic").textContent=files[0].name.toLowerCase().endsWith(".pdf")?"📄":"🖼️";
+    $("dlb").textContent=files[0].name;
+    $("dsb").textContent=(files[0].size/1048576).toFixed(1)+" MB · 클릭하여 다른 파일 선택";
+    $("flist").style.display="none";
+  }else{
+    $("dic").textContent="📑";
+    $("dlb").textContent=files.length+"개 파일 선택됨";
+    $("dsb").textContent="클릭하여 다른 파일 선택";
+    const fl=$("flist");fl.innerHTML="";fl.style.display="block";
+    files.forEach(f=>{
+      const d=document.createElement("div");
+      d.innerHTML='<span class="fn">'+f.name+'</span><span class="fs">'+(f.size/1048576).toFixed(1)+' MB</span>';
+      fl.appendChild(d);
+    });
+  }
+  $("sconv").style.display="block";
+}
 
 // ═══ Convert ═══
-let stopped=false;
-function stopConvert(){stopped=true;sP("중지됨",0,1);$("pfl").style.background="#dc2626"}
+function stopC(){stopped=true}
+
 async function go(){
-  if(!cFile)return;const ak=gk();if(!ak){togApi();sE("Claude API 키를 먼저 입력해주세요.");return}
-  stopped=false;$("sconv").style.display="none";$("spg").style.display="block";$("pfl").style.background="linear-gradient(90deg,#1a2d4a,#c89250)";hE();sC=0;uC();
+  if(!files.length)return;
+  const ak=gk();if(!ak){togApi();sE("Claude API 키를 먼저 입력해주세요.");return}
+  stopped=false;$("sconv").style.display="none";$("spg").style.display="block";
+  $("pfl").style.background="linear-gradient(90deg,#1a2d4a,#c89250)";
+  hE();sC=0;uC();
+
   try{
-    sP("PDF 페이지 변환 중...",0,0);const pgs=await p2i(cFile);res=[];
-    for(let i=0;i<pgs.length;i++){
-      if(stopped){sP("중지됨 — "+res.filter(r=>r.svg).length+"개 완료",i,pgs.length);break}
-      sP("슬라이드 "+(i+1)+"/"+pgs.length+" 변환 중...",i+1,pgs.length);
-      try{const r=await toS(pgs[i],ak);res.push({n:i+1,svg:r.svg,e:null,cost:r.cost})}catch(e){res.push({n:i+1,svg:null,e:e.message,cost:0})}}
-    if(!stopped)sP("변환 완료!",pgs.length,pgs.length);
-    setTimeout(()=>{$("spg").style.display="none";if(res.length>0)showR();else{$("sconv").style.display="block"}},600);
+    // 모든 파일에서 이미지 추출
+    sP("파일 처리 중...",0,0);
+    let pages=[];
+    for(const f of files){
+      if(f.name.toLowerCase().endsWith(".pdf")){
+        const pgs=await pdf2img(f);
+        pages.push(...pgs);
+      }else{
+        const img=await img2b64(f);
+        pages.push(img);
+      }
+    }
+
+    if(pages.length>MAX_FILES){
+      pages=pages.slice(0,MAX_FILES);
+      sE("최대 "+MAX_FILES+"장으로 제한됩니다. 처음 "+MAX_FILES+"장만 변환합니다.");
+    }
+
+    res=[];
+    for(let i=0;i<pages.length;i++){
+      if(stopped){sP("중지됨 — "+res.filter(r=>r.svg).length+"개 완료",i,pages.length);break}
+      sP("슬라이드 "+(i+1)+"/"+pages.length+" 변환 중...",i+1,pages.length);
+      try{
+        const r=await toSvg(pages[i],ak);
+        res.push({n:i+1,name:pages[i].name,svg:r.svg,e:null,cost:r.cost});
+      }catch(e){
+        res.push({n:i+1,name:pages[i].name,svg:null,e:e.message,cost:0});
+      }
+    }
+    if(!stopped)sP("변환 완료!",pages.length,pages.length);
+    setTimeout(()=>{$("spg").style.display="none";if(res.length>0)showR();else $("sconv").style.display="block"},600);
   }catch(e){$("spg").style.display="none";$("sconv").style.display="block";sE(e.message)}
 }
 
-async function p2i(file){const buf=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:buf}).promise,pgs=[];
-  for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i),vp=pg.getViewport({scale:2}),c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;pgs.push({n:i,b64:c.toDataURL("image/png").split(",")[1],cv:c})}return pgs}
+// PDF → 이미지 배열
+async function pdf2img(file){
+  const buf=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+  const pgs=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const pg=await pdf.getPage(i);
+    const vp=pg.getViewport({scale:2});
+    const c=document.createElement("canvas");
+    c.width=vp.width;c.height=vp.height;
+    await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
+    pgs.push({name:file.name+" p"+i,b64:c.toDataURL("image/png").split(",")[1],cv:c});
+  }
+  return pgs;
+}
 
-function crop(cv,x,y,w,h){const sx=cv.width/1280,sy=cv.height/720,c2=document.createElement("canvas"),cw=Math.round(w*sx),ch=Math.round(h*sy);c2.width=cw;c2.height=ch;c2.getContext("2d").drawImage(cv,Math.round(x*sx),Math.round(y*sy),cw,ch,0,0,cw,ch);return c2.toDataURL("image/png").split(",")[1]}
+// 이미지 파일 → base64
+function img2b64(file){
+  return new Promise((ok,fail)=>{
+    const reader=new FileReader();
+    reader.onload=function(){
+      const img=new Image();
+      img.onload=function(){
+        const c=document.createElement("canvas");
+        c.width=img.width;c.height=img.height;
+        c.getContext("2d").drawImage(img,0,0);
+        ok({name:file.name,b64:c.toDataURL("image/png").split(",")[1],cv:c});
+      };
+      img.src=reader.result;
+    };
+    reader.onerror=fail;
+    reader.readAsDataURL(file);
+  });
+}
 
-async function api(ak,msgs,mt){const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":ak,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:mt,messages:msgs})});
-  if(!r.ok){const t=await r.text();throw new Error("API ("+r.status+"): "+t.substring(0,200))}const d=await r.json(),u=d.usage||{},c=addC(u.input_tokens||0,u.output_tokens||0);return{text:d.content?.[0]?.text||"",cost:c}}
+// crop 함수
+function crop(cv,x,y,w,h){
+  const sx=cv.width/1280,sy=cv.height/720;
+  const c2=document.createElement("canvas");
+  const cw=Math.round(w*sx),ch=Math.round(h*sy);
+  c2.width=cw;c2.height=ch;
+  c2.getContext("2d").drawImage(cv,Math.round(x*sx),Math.round(y*sy),cw,ch,0,0,cw,ch);
+  return c2.toDataURL("image/png").split(",")[1];
+}
 
-async function toS(pg,ak){
-  const bgB64=pg.b64;
+// API 호출
+async function api(ak,msgs,mt){
+  const r=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":ak,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:mt,messages:msgs})
+  });
+  if(!r.ok){const t=await r.text();throw new Error("API ("+r.status+"): "+t.substring(0,200))}
+  const d=await r.json(),u=d.usage||{},c=addC(u.input_tokens||0,u.output_tokens||0);
+  return{text:d.content?.[0]?.text||"",cost:c};
+}
 
-  const r=await api(ak,[{role:"user",content:[
+// ═══ 핵심: SVG 변환 (v7 복구 - 2pass 사진crop + 벡터) ═══
+async function toSvg(pg,ak){
+  let tc=0;
+
+  // Pass 1: 사진 좌표 감지
+  const r1=await api(ak,[{role:"user",content:[
+    {type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},
+    {type:"text",text:`이 슬라이드에서 사진/스크린샷/실사 이미지 영역 좌표를 찾아주세요.
+viewBox 1280x720 기준. 아이콘/도형/차트/텍스트 제외. 사진/스크린샷만.
+JSON 배열만 출력. 사진 없으면 [].
+예: [{"x":65,"y":210,"w":230,"h":160}]`}
+  ]}],2000);
+  tc+=r1.cost;
+
+  let photos=[];
+  try{const m=r1.text.match(/\[[\s\S]*\]/);if(m)photos=JSON.parse(m[0])}catch(e){}
+
+  // 사진 crop
+  const pd=photos.map((p,i)=>{
+    try{return{id:"p"+i,x:p.x,y:p.y,w:p.w,h:p.h,b:crop(pg.cv,p.x,p.y,p.w,p.h)}}
+    catch(e){return null}
+  }).filter(Boolean);
+
+  // 사진 지시문
+  let pi="";
+  if(pd.length>0){
+    pi=`
+
+⚠️ 사진 처리:
+이 슬라이드에 사진 ${pd.length}개 발견. 각 위치에 이 태그를 정확히 넣으세요:
+${pd.map(p=>'<image href="data:image/png;base64,PH_'+p.id+'" x="'+p.x+'" y="'+p.y+'" width="'+p.w+'" height="'+p.h+'" />').join("\n")}
+
+절대 금지: 사진 영역을 rect/path/색상으로 다시 그리기, 사진 위에 텍스트 겹치기.
+PH_p0 등 플레이스홀더를 그대로 유지하세요.`;
+  }
+
+  // Pass 2: SVG 생성
+  const r2=await api(ak,[{role:"user",content:[
     {type:"image",source:{type:"base64",media_type:"image/png",data:pg.b64}},
     {type:"text",text:`이 프레젠테이션 슬라이드를 편집 가능한 SVG로 정확하게 재현하세요.
+${pi}
 
-★ 구조 (이 순서대로 SVG에 넣으세요):
-
-1층 - 참조 배경 (맨 아래):
-<image href="data:image/png;base64,BG_IMAGE" x="0" y="0" width="1280" height="720" opacity="0.15" />
-"BG_IMAGE" 플레이스홀더를 정확히 유지하세요. 자동 교체됩니다.
-
-2층 - 배경색/배경 도형:
-슬라이드 배경색을 rect로 깔고, 큰 배경 블록(섹션 배경, 하단 Notes 배경 등)
-
-3층 - 도형/표/차트:
-- 사각형, 원, 라운드렉트, 선 등 → rect, circle, ellipse, line, path
-- 표 → rect(셀 배경) + line(구분선) + text(셀 내용)
-- 차트/그래프 → rect, circle, line으로 단순 재현
-- 각 도형의 크기, 위치, 색상, 테두리를 원본과 동일하게
-
-4층 - 사진/스크린샷 영역:
-사진이 있는 위치에 원본에서 해당 영역을 잘라냅니다:
-<image href="data:image/png;base64,PHOTO_0" x="사진x" y="사진y" width="사진w" height="사진h" />
-PHOTO_0, PHOTO_1 등 플레이스홀더를 사용하세요. 사진 좌표도 JSON 주석으로 알려주세요.
-사진이 없으면 이 층은 비워두세요.
-
-5층 - 아이콘:
-간단한 SVG path로 근사 (완벽하지 않아도 됨)
-
-6층 - 텍스트 (맨 위):
-모든 텍스트를 편집 가능한 <text> 요소로
-
-★ 폰트:
-- 영어 전용: font-family="Calibri, sans-serif"
-- 한국어 포함: font-family="Malgun Gothic, Calibri, sans-serif"
-
-★ 텍스트 크기:
-- 메인 제목: 30~36px bold
-- 소제목: 20~24px bold
-- 본문: 14~16px
-- 불릿 텍스트: 14~15px
-- 캡션/라벨: 11~13px
-- Speaker Notes: 10~11px
-
-★ 필수 규칙:
-1. viewBox="0 0 1280 720" 고정
-2. 모든 요소를 원본과 동일한 크기와 위치에 배치 (1280x720 전체 사용)
-3. 각 요소는 한 번만! 절대 중복 금지
+필수 규칙:
+1. viewBox="0 0 1280 720" 고정. 콘텐츠가 전체를 꽉 채워야 합니다.
+2. 폰트: 영어 font-family="Calibri, sans-serif" / 한국어 포함 font-family="Malgun Gothic, Calibri, sans-serif"
+3. 각 요소는 한 번만. 절대 중복 금지!
 4. 원본에서 한 줄인 텍스트는 SVG에서도 한 줄 (임의 tspan 금지)
-5. 색상을 원본과 동일하게
-6. 사진 영역이 있으면 SVG 마지막에 JSON 주석으로 좌표를 넣어주세요:
-<!-- PHOTOS:[{"x":100,"y":200,"w":300,"h":250}] -->
 
-출력: <svg로 시작 </svg>로 끝. 설명/\`\`\` 없이 SVG만.`}]}],16000);
+텍스트 크기: 메인제목 30~36px bold, 소제목 20~24px bold, 본문 14~16px, 캡션 11~13px, Notes 10~11px
 
-  let tc=r.cost;
-  let svg=r.text;
-  const mt=svg.match(/<svg[\s\S]*<\/svg>/);if(mt)svg=mt[0];
+레이아웃:
+- 배경색 rect → 도형/표 → 사진 <image> → 아이콘 path → 텍스트 순서
+- 각 요소의 x,y 좌표를 원본과 동일하게
+- 2칼럼이면 왼쪽(x:40~600) 오른쪽(x:640~1240) 분리
+
+도형/표: rect, circle, ellipse, line, path로 정확하게. 표는 rect(셀)+line(구분선)+text(내용)
+아이콘: 간단한 SVG path로 (형태 비슷하면 OK)
+색상: 원본과 동일하게 (배경, 텍스트, 도형, 테두리)
+하단 Notes: 배경색 #dcdfe2 등으로 구분, 10~11px
+
+출력: <svg로 시작 </svg>로 끝. 설명/\`\`\` 없이 SVG만.`}
+  ]}],16000);
+  tc+=r2.cost;
+
+  let svg=r2.text;
+  const mt=svg.match(/<svg[\s\S]*<\/svg>/);
+  if(mt)svg=mt[0];
   if(!svg.includes("<svg"))throw new Error("SVG 생성 실패");
 
-  // 배경 이미지 플레이스홀더 교체
-  svg=svg.replace(/BG_IMAGE/g,bgB64);
-
-  // 사진 영역 crop 및 교체
-  const photoMatch=svg.match(/<!-- PHOTOS:(\[[\s\S]*?\]) -->/);
-  if(photoMatch){
-    try{
-      const photos=JSON.parse(photoMatch[1]);
-      photos.forEach((p,i)=>{
-        try{
-          const b=crop(pg.cv,p.x,p.y,p.w,p.h);
-          svg=svg.replace(new RegExp("PHOTO_"+i,"g"),b);
-        }catch(e){}
-      });
-    }catch(e){}
-  }
+  // 사진 플레이스홀더 → 실제 base64
+  pd.forEach(p=>{svg=svg.replace(new RegExp("PH_"+p.id,"g"),p.b)});
 
   return{svg,cost:tc};
 }
 
 // ═══ UI ═══
 function sP(s,c,t){$("pst").textContent=s;$("pct").textContent=t>0?c+"/"+t:"";$("pfl").style.width=(t>0?c/t*100:30)+"%";$("pfl").className=t===0?"pf pu":"pf"}
-function showR(){const el=$("rl");el.innerHTML="";let bc=0;
+
+function showR(){
+  const el=$("rl");el.innerHTML="";let bc=0;
   res.forEach((r,i)=>{bc+=r.cost||0;const d=document.createElement("div");d.className="cd"+(r.e?" er":"");
-    let h='<div class="cdh"><span class="t'+(r.e?' e':'')+'">슬라이드 '+r.n+(r.e?' — '+r.e:'')+(r.cost>0?'<span class="cb2">$'+r.cost.toFixed(3)+'</span>':'')+'</span>';
+    let h='<div class="cdh"><span class="t'+(r.e?' e':'')+'">'+r.name+(r.e?' — '+r.e:'')+(r.cost>0?'<span class="cb2">$'+r.cost.toFixed(3)+'</span>':'')+'</span>';
     if(r.svg)h+='<button class="bs" onclick="dl1('+i+')">SVG 다운로드</button>';h+='</div>';
     if(r.svg)h+='<div class="pv">'+r.svg+'</div>';d.innerHTML=h;el.appendChild(d)});
   document.querySelector(".rsh .bd").textContent="전체 다운로드 ("+res.filter(r=>r.svg).length+"개)";
-  $("rsh2").textContent="변환 결과 — 이번 비용: $"+bc.toFixed(3);$("srs").style.display="block"}
-function dl1(i){const r=res[i];if(!r||!r.svg)return;const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([r.svg],{type:"image/svg+xml"}));a.download=cFile.name.replace(".pdf","")+"_slide"+r.n+".svg";a.click()}
+  $("rsh2").textContent="변환 결과 — 이번 비용: $"+bc.toFixed(3);
+  $("srs").style.display="block";
+}
+
+function dl1(i){
+  const r=res[i];if(!r||!r.svg)return;
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([r.svg],{type:"image/svg+xml"}));
+  const base=files.length===1?files[0].name.replace(/\.(pdf|png|jpe?g)$/i,""):r.name.replace(/[^a-zA-Z0-9가-힣_-]/g,"_");
+  a.download=base+"_slide"+r.n+".svg";
+  a.click();
+}
 function dlA(){res.filter(r=>r.svg).forEach((r,i)=>setTimeout(()=>dl1(res.indexOf(r)),i*300))}
-function rst(){cFile=null;res=[];sC=0;uC();$("srs").style.display="none";$("sconv").style.display="none";$("dz").classList.remove("ok");$("dic").textContent="📁";$("dlb").textContent="PDF 파일을 드래그하거나 클릭하여 선택";$("dsb").textContent="프레젠테이션 PDF를 편집 가능한 SVG로 변환합니다";$("fi").value=""}
-function sE(m){const e=$("em");e.textContent=m;e.style.display="block"}function hE(){$("em").style.display="none"}
+
+function rst(){
+  files=[];res=[];sC=0;stopped=false;uC();
+  $("srs").style.display="none";$("sconv").style.display="none";$("flist").style.display="none";
+  $("dz").classList.remove("ok");
+  $("dic").textContent="📁";
+  $("dlb").textContent="PDF 또는 PNG/JPG 파일을 드래그하거나 클릭";
+  $("dsb").textContent="PDF(여러 페이지) 또는 이미지(최대 20장)를 편집 가능한 SVG로 변환";
+  $("fi").value="";
+}
+function sE(m){const e=$("em");e.textContent=m;e.style.display="block"}
+function hE(){$("em").style.display="none"}
 </script>
 </body>
 </html>
