@@ -315,25 +315,49 @@ async function loadHistory(){
   list.innerHTML='<div class="h-loading">Loading history...</div>';
   if(!curUser){list.innerHTML='<div class="h-empty"><div class="h-empty-ico">—</div><p>Sign in required</p></div>';return}
   try{
-    const basePath=getUserPath()+"/meta/";
-    const metaRef=storage.ref(basePath);
-    let metaList;
-    try{metaList=await metaRef.listAll()}catch(e){
-      // meta folder doesn't exist yet
-      list.innerHTML='<div class="h-empty"><div class="h-empty-ico">—</div><p>No conversion history yet</p><p style="margin-top:4px;font-size:11px;color:var(--t4)">Converted files will appear here automatically</p></div>';
-      return;
-    }
-    if(metaList.items.length===0){
-      list.innerHTML='<div class="h-empty"><div class="h-empty-ico">—</div><p>No conversion history yet</p><p style="margin-top:4px;font-size:11px;color:var(--t4)">Converted files will appear here automatically</p></div>';
-      return;
-    }
+    const basePath=getUserPath();
+    const baseRef=storage.ref(basePath);
+    const topLevel=await baseRef.listAll();
+
+    // Approach 1: load from meta/ JSON files
     const metas=[];
-    for(const item of metaList.items){
-      try{const url=await item.getDownloadURL();const resp=await fetch(url);const meta=await resp.json();meta._metaPath=item.fullPath;metas.push(meta)}catch(e){console.warn("Meta load error:",e)}
+    const metaPrefix=topLevel.prefixes.find(p=>p.name==="meta");
+    if(metaPrefix){
+      const metaList=await metaPrefix.listAll();
+      for(const item of metaList.items){
+        try{const url=await item.getDownloadURL();const resp=await fetch(url);const meta=await resp.json();meta._metaPath=item.fullPath;metas.push(meta)}catch(e){}
+      }
+    }
+
+    // Approach 2: scan date folders for SVG files not covered by meta
+    const metaPaths=new Set(metas.map(m=>m.storagePath));
+    const dateFolders=topLevel.prefixes.filter(p=>p.name!=="meta");
+    for(const folder of dateFolders){
+      const svgList=await folder.listAll();
+      for(const item of svgList.items){
+        if(!item.name.endsWith(".svg"))continue;
+        const fp=item.fullPath;
+        if(metaPaths.has(fp))continue; // already have meta for this
+        // Build meta from file info
+        const ts=parseInt((item.name.match(/_(\d{13})\./)||[])[1])||Date.now();
+        metas.push({
+          fileName:item.name,
+          sourceName:item.name.replace(/_slide\d+_\d+\.svg$/,"").replace(/_/g," "),
+          slideNum:parseInt((item.name.match(/_slide(\d+)/)||[])[1])||1,
+          cost:0,timestamp:ts,date:folder.name,
+          storagePath:fp,size:0,_metaPath:null
+        });
+      }
+    }
+
+    if(metas.length===0){
+      list.innerHTML='<div class="h-empty"><div class="h-empty-ico">—</div><p>No conversion history yet</p><p style="margin-top:4px;font-size:11px;color:var(--t4)">Converted files will appear here automatically</p></div>';
+      return;
     }
     window._historyData=metas;
     renderHistory(metas);
   }catch(e){
+    console.error("History load error:",e);
     list.innerHTML='<div class="h-empty"><div class="h-empty-ico">!</div><p>Could not load history</p><p style="font-size:11px;margin-top:4px;color:var(--t4)">'+escH(e.message)+'</p></div>';
   }
 }
@@ -341,10 +365,19 @@ async function loadHistory(){
 async function loadHistoryCount(){
   if(!curUser)return;
   try{
-    const basePath=getUserPath()+"/meta/";
-    const metaRef=storage.ref(basePath);
-    const metaList=await metaRef.listAll();
-    const cnt=metaList.items.length;
+    const baseRef=storage.ref(getUserPath());
+    const topLevel=await baseRef.listAll();
+    let cnt=0;
+    // Count from meta
+    const metaPrefix=topLevel.prefixes.find(p=>p.name==="meta");
+    if(metaPrefix){const ml=await metaPrefix.listAll();cnt=ml.items.length}
+    // Also count SVGs in date folders not covered
+    const dateFolders=topLevel.prefixes.filter(p=>p.name!=="meta");
+    for(const folder of dateFolders){
+      const svgList=await folder.listAll();
+      const svgCount=svgList.items.filter(i=>i.name.endsWith(".svg")).length;
+      if(svgCount>cnt)cnt=svgCount; // use max of meta count vs actual files
+    }
     const badge=$("tabHistoryCount");
     if(cnt>0){badge.textContent=cnt;badge.style.display="inline-flex"}
     else{badge.style.display="none"}
@@ -385,7 +418,7 @@ function renderHistory(metas){
       html+='</div></div>';
       html+='<div class="h-acts">';
       html+='<button class="h-btn h-btn-p" onclick="event.stopPropagation();downloadFromHistory(\''+encodeURIComponent(m.storagePath)+'\',\''+encodeURIComponent(m.fileName)+'\')">Download</button>';
-      html+='<button class="h-btn h-btn-d" onclick="event.stopPropagation();deleteFromHistory(\''+encodeURIComponent(m.storagePath)+'\',\''+encodeURIComponent(m._metaPath)+'\')">x</button>';
+      html+='<button class="h-btn h-btn-d" onclick="event.stopPropagation();deleteFromHistory(\''+encodeURIComponent(m.storagePath)+'\','+(m._metaPath?'\''+encodeURIComponent(m._metaPath)+'\'':'null')+')">x</button>';
       html+='</div></div>';
     });
     html+='</div>';
@@ -432,8 +465,9 @@ async function downloadFromHistory(ep,en){
 
 async function deleteFromHistory(eSvg,eMeta){
   if(!confirm("Delete this SVG?"))return;
-  const sp=decodeURIComponent(eSvg),mp=decodeURIComponent(eMeta);
-  try{await storage.ref(sp).delete();await storage.ref(mp).delete();
+  const sp=decodeURIComponent(eSvg),mp=eMeta?decodeURIComponent(eMeta):null;
+  try{await storage.ref(sp).delete();
+    if(mp)try{await storage.ref(mp).delete()}catch(e){}
     if(window._historyData){window._historyData=window._historyData.filter(m=>m.storagePath!==sp);renderHistory(window._historyData);const cnt=window._historyData.length;const badge=$("tabHistoryCount");if(cnt>0){badge.textContent=cnt;badge.style.display="inline-flex"}else badge.style.display="none"}
   }catch(e){alert("Delete failed: "+e.message)}
 }
@@ -443,7 +477,7 @@ async function deleteAllHistory(){
   if(!window._historyData||!window._historyData.length)return;
   $("histList").innerHTML='<div class="h-loading">Deleting...</div>';
   let d=0;
-  for(const m of window._historyData){try{await storage.ref(m.storagePath).delete();await storage.ref(m._metaPath).delete();d++}catch(e){}}
+  for(const m of window._historyData){try{await storage.ref(m.storagePath).delete();if(m._metaPath)await storage.ref(m._metaPath).delete();d++}catch(e){}}
   window._historyData=[];$("tabHistoryCount").style.display="none";
   $("histList").innerHTML='<div class="h-empty"><div class="h-empty-ico">—</div><p>No conversion history yet</p></div>';
   alert(d+" file(s) deleted.");
